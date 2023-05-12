@@ -67,7 +67,6 @@ uint8_t get_RTC=0;
 uint8_t get_RTC_complete=0;
 uint8_t run_Time_Current=0;
 
-uint16_t check_Power_OFF=0;
 uint8_t check_config=0;
 uint8_t check_connect=0;
 /* USER CODE END PV */
@@ -84,7 +83,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void Set_Time(uint16_t *hh, uint16_t *mm, uint16_t *ss);
 void Set_RTC(REAL_TIME RTC_Current);
 void Module_SIM(void);
 void SendData_Control_SIM(void);
@@ -96,6 +94,7 @@ void Time_Current(void);
   * @brief  The application entry point.
   * @retval int
   */
+
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -126,6 +125,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	HAL_UART_Receive_IT(sUart1.huart,&sUart1.buffer,1);
 	HAL_UART_Receive_IT(sUart3.huart,&sUart1.buffer,1);
+	Get_Addr_Read_Write();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -223,7 +223,8 @@ static void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
-
+	if(HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR1)==0x2608)
+	{
   /* USER CODE END Check_RTC_BKUP */
 
   /** Initialize RTC and set the Time and Date
@@ -247,7 +248,8 @@ static void MX_RTC_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN RTC_Init 2 */
-
+	HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR1, 0x2608);
+	}
   /* USER CODE END RTC_Init 2 */
 
 }
@@ -364,7 +366,7 @@ void Module_SIM(void)
 {
 	if(check_config==0)
 	{
-		check_config=Config_SIM_In_While(&sUart1, &sUart3);
+		check_config=Config_SIM(&sUart1, &sUart3);
 		if(check_config == 1)
 		{
 			if(RTC_Current.Year == 0)
@@ -431,18 +433,6 @@ void SendData_Control_SIM(void)
 	}	
 }
 
-void Read_Flash(void)
-{
-	check_Power_OFF=FLASH_ReadData32(FLASH_USER_START_ADDR);
-	
-	if(check_Power_OFF == 1)
-	{
-//		time1=FLASH_ReadData32(FLASH_USER_START_ADDR + 4);
-//		time2=FLASH_ReadData32(FLASH_USER_START_ADDR + 8);
-//		time3=FLASH_ReadData32(FLASH_USER_START_ADDR + 12);
-	}
-}
-
 void Time_Current(void)
 {
 	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
@@ -451,7 +441,6 @@ void Time_Current(void)
 	{
 		if(sTime.Seconds!=RTC_Current.Seconds)
 		{
-			RTC_Current.Send_Data_Server=1;
 			RTC_Current.Seconds = sTime.Seconds;
 			RTC_Current.Minutes = sTime.Minutes;
 			RTC_Current.Hour = sTime.Hours;

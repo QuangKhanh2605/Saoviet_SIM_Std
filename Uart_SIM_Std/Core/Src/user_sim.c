@@ -5,6 +5,7 @@ uint32_t count_news=0;
 uint32_t getTick_error_cipsend=0;
 uint8_t check_cipsend=0;
 uint8_t send_data=0;
+uint8_t check_packing_news=0;
 
 char Sim_Control[4]= "CTL+";
 
@@ -18,7 +19,7 @@ void Control_Read_News_Flash(void);
 void Write_Data_News(REAL_TIME *RTC_Current, char News[], uint32_t lengthNews, uint32_t countNews);
 void Uint_To_Char_Sim(char time[], uint32_t stamp, uint16_t *location);
 int8_t Error_Cipsend(void);
-
+	
 int8_t SendData_Server(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3, REAL_TIME *RTC_Current)
 {
 	if(Error_Cipsend() == 1) return -1;
@@ -34,10 +35,18 @@ int8_t SendData_Server(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3, REAL_TIME *
 			}
 			if(flash_addr_read != flash_addr_write)
 			{
-				Transmit_Data_Uart(*rx_uart3->huart,"AT+CIPSEND=1,32");
-				Transmit_Data_Uart(*rx_uart1->huart,"AT+CIPSEND=1,32");
-				check_cipsend=1;
-				getTick_error_cipsend = HAL_GetTick();
+				FLASH_ReadNews(flash_addr_read, News);
+				if(News[31] == ' ')
+				{
+					Transmit_Data_Uart(*rx_uart3->huart,"AT+CIPSEND=1,32");
+					Transmit_Data_Uart(*rx_uart1->huart,"AT+CIPSEND=1,32");
+					check_cipsend=1;
+					getTick_error_cipsend = HAL_GetTick();
+				}
+				else
+				{
+					Control_Read_News_Flash();
+				}
 			}
 		}
 		if(check_cipsend == 1)
@@ -48,7 +57,6 @@ int8_t SendData_Server(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3, REAL_TIME *
 				{
 					if(strstr(rx_uart3->sim_rx,">") != NULL) 
 					{
-						FLASH_ReadNews(flash_addr_read, News);
 						Transmit_Data_Uart(*rx_uart1->huart, rx_uart3->sim_rx);
 						Transmit_Data_Uart(*rx_uart3->huart,News);
 						Transmit_Data_Uart(*rx_uart1->huart,News);
@@ -78,6 +86,7 @@ int8_t SendData_Server(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3, REAL_TIME *
 						Control_Read_News_Flash();
 						check_cipsend=0;
 						send_data=0;
+						FLASH_Write_Addr_Page_Write_Read(FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
 					}
 					if(strstr(rx_uart3->sim_rx,"FAIL") != NULL) 
 					{
@@ -113,25 +122,34 @@ void Packing_News(REAL_TIME *RTC_Current)
 	{
 		if(RTC_Current->Send_Data_Server == 1 )
 		{
+			if(check_packing_news == 1)
+			{
+				count_news++;	
+				Write_Data_News(RTC_Current, News, BYTE_OF_THE_NEWS, count_news);
+				if(flash_addr_write == flash_page_write)
+				{
+					FLASH_WriteNews_Earse(flash_addr_write, News, FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
+				}
+				else
+				{
+					FLASH_WriteNews(flash_addr_write, News, FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
+				}
+				Control_Write_News_Flash();
+				send_data = 1;
+				check_packing_news = 0;
+			}
 			RTC_Current->Send_Data_Server = 0;
-			count_news++;	
-			Write_Data_News(RTC_Current, News, BYTE_OF_THE_NEWS, count_news);
-			if(flash_addr_write == flash_page_write)
-			{
-				FLASH_WriteNews_Earse(flash_addr_write, News);
-			}
-			else
-			{
-				FLASH_WriteNews(flash_addr_write,News);
-			}
-			Control_Write_News_Flash();
-			send_data = 1;
 		}
 		
 		if(flash_addr_read != flash_addr_write )
 		{
 			send_data = 1;
 		}
+	}
+	
+	if(RTC_Current->Seconds >28 && RTC_Current->Seconds <32)
+	{
+		check_packing_news = 1;
 	}
 }
 
@@ -215,6 +233,17 @@ int8_t Error_Cipsend(void)
 		}
 	}
 	return 0;
+}
+
+void Get_Addr_Read_Write(void)
+{
+	if(FLASH_ReadData32(FLASH_ADDR_PAGE_253) != 0 && FLASH_ReadData32(FLASH_ADDR_PAGE_253+4) != 0)
+	{
+		flash_addr_read = FLASH_ReadData32(FLASH_ADDR_PAGE_253);
+		flash_page_read = (flash_addr_read/1024)*1024;
+		flash_addr_write= FLASH_ReadData32(FLASH_ADDR_PAGE_253 + 4) + BYTE_OF_THE_NEWS;
+		flash_page_write = (flash_addr_write/1024)*1024;
+	}
 }
 
 int8_t Receive_Control_Setup(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3, uint8_t *check_connect, uint32_t *time1, uint32_t *time2,uint32_t *time3)
@@ -310,7 +339,7 @@ void Write_Data_News(REAL_TIME *RTC_Current, char News[], uint32_t lengthNews, u
 		News[i]=' ';
 		i++;
 	}
-	News[lengthNews-1]=0;
+	News[i]=' ';
 }
 
 int8_t Check_Receive_sendData_Control(UART_BUFFER *rx_uart1,UART_BUFFER *rx_uart3)

@@ -20,11 +20,11 @@
 #define FLASH_USER_START_ADDR   FLASH_ADDR_PAGE_254
 #define FLASH_USER_END_ADDR     FLASH_ADDR_PAGE_255 
 
-void FLASH_WriteNews(uint32_t addr_start_write,char News[]);
-void FLASH_WriteNews_Earse(uint32_t addr_start_write,char News[]);
+void FLASH_WriteNews(uint32_t addr_start_write,char News[], uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write);
+void FLASH_WriteNews_Earse(uint32_t addr_start_write,char News[], uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write);
 void FLASH_ReadNews(uint32_t addr_start_read,char News[]);
 
 uint32_t FLASH_ReadData32(uint32_t addr);
 void FLASH_WritePage(uint32_t startPage, uint32_t endPage,uint32_t check, uint32_t data1,uint32_t data2,uint32_t data3);
-
+void FLASH_Write_Addr_Page_Write_Read(uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write);
 #endif

@@ -26,17 +26,13 @@ typedef struct
 	uint8_t Seconds;
 }REAL_TIME;
 													 
-int8_t Compare_Uart1_RX_Uart3_TX(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3,char* response);	
-int8_t Compare_Uart1_RX_Uart3_TX_True_Display(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3,char* response);
-int8_t Uart1_To_Uart3(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3);
+int8_t Compare_Uart1_RX_Uart3_TX(UART_BUFFER *sUart1, UART_BUFFER *sUart3,char* response);	
+int8_t Compare_Uart1_RX_Uart3_TX_True_Display(UART_BUFFER *sUart1, UART_BUFFER *sUart3,char* response);
+int8_t Uart1_To_Uart3(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 
-int8_t Wait_SMS_Receive(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3,char* response);
+int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
+int8_t Check_Disconnect_Error(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
+int8_t Config_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 
-void Config_SIM_Before_While(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3, uint32_t runTime );
-
-int8_t Connect_Server_SIM(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3);
-int8_t Check_Disconnect_Error(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3);
-int8_t Config_SIM_In_While(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3);
-
-void Get_Real_Time(UART_BUFFER *rx_uart1, UART_BUFFER *rx_uart3, REAL_TIME *RTC_Current,uint8_t *check_connect, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete);
+void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current,uint8_t *check_connect, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete);
 #endif

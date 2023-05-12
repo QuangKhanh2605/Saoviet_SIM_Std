@@ -17,7 +17,7 @@ void FLASH_WritePage(uint32_t startPage, uint32_t endPage,uint32_t check, uint32
   HAL_FLASH_Lock();
 }
 
-void FLASH_WriteNews(uint32_t addr_start_write,char News[])
+void FLASH_WriteNews(uint32_t addr_start_write,char News[], uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write)
 {
   HAL_FLASH_Unlock();
 	uint8_t length_tmp = BYTE_OF_THE_NEWS/4;
@@ -35,6 +35,15 @@ void FLASH_WriteNews(uint32_t addr_start_write,char News[])
 		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_write , tmp[i]);
 		(addr_start_write)=(addr_start_write)+4;
 	}
+	
+	FLASH_EraseInitTypeDef EraseInit;
+	EraseInit.TypeErase = FLASH_TYPEERASE_PAGES;
+	EraseInit.PageAddress = addr_start_save;
+	EraseInit.NbPages = (1024)/FLASH_PAGE_SIZE;
+	uint32_t PageError = 0;
+	HAL_FLASHEx_Erase(&EraseInit, &PageError);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_save , addr_read);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_save + 4, addr_write); //4 byte dau tien
   HAL_FLASH_Lock();
 }
 
@@ -64,7 +73,21 @@ uint32_t FLASH_ReadData32(uint32_t addr)
 	return data;
 }
 
-void FLASH_WriteNews_Earse(uint32_t addr_start_write,char News[])
+void FLASH_Write_Addr_Page_Write_Read(uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write)
+{
+  HAL_FLASH_Unlock();
+	FLASH_EraseInitTypeDef EraseInit;
+	EraseInit.TypeErase = FLASH_TYPEERASE_PAGES;
+	EraseInit.PageAddress = addr_start_save;
+	EraseInit.NbPages = (1024)/FLASH_PAGE_SIZE;
+	uint32_t PageError = 0;
+	HAL_FLASHEx_Erase(&EraseInit, &PageError);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_save , addr_read);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_save + 4, addr_write); //4 byte dau tien
+  HAL_FLASH_Lock();
+}
+
+void FLASH_WriteNews_Earse(uint32_t addr_start_write, char News[], uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write)
 {
 	HAL_FLASH_Unlock();
 	FLASH_EraseInitTypeDef EraseInit;
@@ -89,6 +112,13 @@ void FLASH_WriteNews_Earse(uint32_t addr_start_write,char News[])
 		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_write , tmp[i]);
 		(addr_start_write)=(addr_start_write)+4;
 	}
+	
+	EraseInit.TypeErase = FLASH_TYPEERASE_PAGES;
+	EraseInit.PageAddress = addr_start_save;
+	EraseInit.NbPages = (1024)/FLASH_PAGE_SIZE;
+	HAL_FLASHEx_Erase(&EraseInit, &PageError);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_save , addr_read);
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr_start_save + 4, addr_write); //4 byte dau tien
   HAL_FLASH_Lock();
 }
 
