@@ -21,9 +21,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "flash_memory.h"
-#include "uart_sim.h"
-#include "user_uart.h"
 #include "user_sim.h"
 /* USER CODE END Includes */
 
@@ -65,7 +62,6 @@ RTC_DateTypeDef sDate;
 REAL_TIME RTC_Current={0};
 uint8_t get_RTC=0;
 uint8_t get_RTC_complete=0;
-uint8_t run_Time_Current=0;
 
 uint8_t check_config=0;
 uint8_t check_connect=0;
@@ -428,7 +424,6 @@ void SendData_Control_SIM(void)
 		{
 			Set_RTC(RTC_Current);
 			get_RTC_complete=0;
-			run_Time_Current=1;
 		}
 	}	
 }

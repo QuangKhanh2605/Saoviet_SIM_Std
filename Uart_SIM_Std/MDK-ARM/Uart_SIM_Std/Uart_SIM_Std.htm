@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Uart_SIM_Std\Uart_SIM_Std.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Uart_SIM_Std\Uart_SIM_Std.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Fri May 12 08:56:20 2023
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Fri May 12 10:10:40 2023
 <BR><P>
 <H3>Maximum Stack Usage =        424 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -922,7 +922,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[6d]"></a>HAL_GetTick</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32l1xx_hal.o(i.HAL_GetTick))
-<BR><BR>[Called By]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Check_CountBuffer_Complete_Uart3
+<BR><BR>[Called By]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Check_CountBuffer_Complete_Uart3
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Cipsend
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SendData_Server
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
@@ -933,7 +934,6 @@ Global Symbols
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Config_SIM
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_WaitForLastOperation
 <LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
-<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
 <LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Check_CountBuffer_Complete_Uart1
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Setup_SIM
@@ -1074,11 +1074,11 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[a3]"></a>HAL_RTC_Init</STRONG> (Thumb, 212 bytes, Stack size 8 bytes, stm32l1xx_hal_rtc.o(i.HAL_RTC_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = HAL_RTC_Init &rArr; RTC_EnterInitMode
+<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = HAL_RTC_Init &rArr; HAL_RTC_WaitForSynchro
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_MspInit
+<BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
+<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_MspInit
 <LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
-<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
 </UL>
 <BR>[Called By]<UL><LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_RTC_Init
 </UL>
@@ -1088,22 +1088,22 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[a7]"></a>HAL_RTC_SetDate</STRONG> (Thumb, 246 bytes, Stack size 24 bytes, stm32l1xx_hal_rtc.o(i.HAL_RTC_SetDate))
-<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = HAL_RTC_SetDate &rArr; RTC_EnterInitMode
+<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = HAL_RTC_SetDate &rArr; HAL_RTC_WaitForSynchro
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
+<BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
+<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ByteToBcd2
-<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
 </UL>
 <BR>[Called By]<UL><LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Set_RTC
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_RTC_Init
 </UL>
 
 <P><STRONG><a name="[a9]"></a>HAL_RTC_SetTime</STRONG> (Thumb, 288 bytes, Stack size 24 bytes, stm32l1xx_hal_rtc.o(i.HAL_RTC_SetTime))
-<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = HAL_RTC_SetTime &rArr; RTC_EnterInitMode
+<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = HAL_RTC_SetTime &rArr; HAL_RTC_WaitForSynchro
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
+<BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
+<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_ByteToBcd2
-<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
 </UL>
 <BR>[Called By]<UL><LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Set_RTC
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_RTC_Init
@@ -1265,7 +1265,7 @@ Global Symbols
 <P><STRONG><a name="[f]"></a>SVC_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32l1xx_it.o(i.SVC_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32l151xc.o(RESET)
 </UL>
-<P><STRONG><a name="[c6]"></a>SendData_Control_SIM</STRONG> (Thumb, 114 bytes, Stack size 16 bytes, main.o(i.SendData_Control_SIM))
+<P><STRONG><a name="[c6]"></a>SendData_Control_SIM</STRONG> (Thumb, 106 bytes, Stack size 16 bytes, main.o(i.SendData_Control_SIM))
 <BR><BR>[Stack]<UL><LI>Max Depth = 400<LI>Call Chain = SendData_Control_SIM &rArr; Get_Real_Time &rArr; Check_Disconnect_Error &rArr; Transmit_Data_Uart &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SendData_Server
@@ -1295,7 +1295,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[cb]"></a>Set_RTC</STRONG> (Thumb, 60 bytes, Stack size 16 bytes, main.o(i.Set_RTC))
-<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = Set_RTC &rArr; HAL_RTC_SetTime &rArr; RTC_EnterInitMode
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = Set_RTC &rArr; HAL_RTC_SetTime &rArr; HAL_RTC_WaitForSynchro
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_SetTime
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_SetDate
@@ -1443,7 +1443,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[bf]"></a>MX_RTC_Init</STRONG> (Thumb, 156 bytes, Stack size 32 bytes, main.o(i.MX_RTC_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = MX_RTC_Init &rArr; HAL_RTC_SetTime &rArr; RTC_EnterInitMode
+<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = MX_RTC_Init &rArr; HAL_RTC_SetTime &rArr; HAL_RTC_WaitForSynchro
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_SetTime
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_SetDate

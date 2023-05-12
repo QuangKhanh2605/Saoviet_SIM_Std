@@ -14,10 +14,10 @@ typedef struct
 	char sim_rx[LENGTH_BUFFER_UART];
 }UART_BUFFER;
 
-int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *rx_uart);
-int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *rx_uart);
-int8_t Check_Rx_Complete(UART_BUFFER *rx_uart);
+int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart);
+int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart);
+int8_t Check_Rx_Complete(UART_BUFFER *sUart);
 
 void Transmit_Data_Uart(UART_HandleTypeDef huart,void* data);
-void Delete_Buffer(UART_BUFFER *rx_uart);
+void Delete_Buffer(UART_BUFFER *sUart);
 #endif
