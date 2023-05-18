@@ -1,6 +1,7 @@
 #include "user_sim.h"
 
-char News[BYTE_OF_THE_NEWS];
+char News_Write[LENGTH_BYTE_OF_THE_NEWS];
+char News_Read[LENGTH_BYTE_OF_THE_NEWS];
 uint32_t count_news=0;
 uint32_t getTick_error_cipsend=0;
 uint8_t check_cipsend=0;
@@ -35,8 +36,17 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 			}
 			if(flash_addr_read != flash_addr_write)
 			{
-				FLASH_ReadNews(flash_addr_read, News);
-				if(News[31] == ' ')
+				FLASH_ReadNews(flash_addr_read, News_Read);
+				uint8_t check_error=0;
+				for(uint8_t i=0; i< LENGTH_BYTE_OF_THE_NEWS; i++)
+				{
+					if(News_Read[i] == 0x00) 
+					{
+						check_error = 1;
+						break;
+					}
+				}
+				if(News_Read[31] == '\n' && check_error == 0)
 				{
 					Transmit_Data_Uart(*sUart3->huart,"AT+CIPSEND=1,32");
 					Transmit_Data_Uart(*sUart1->huart,"AT+CIPSEND=1,32");
@@ -53,23 +63,15 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 		{
 			if(Check_CountBuffer_Complete_Uart3(sUart3)==1)
 			{
-				if(Check_Disconnect_Error(sUart1, sUart3)!=1) 
+				if(strstr(sUart3->sim_rx,">") != NULL) 
 				{
-					if(strstr(sUart3->sim_rx,">") != NULL) 
-					{
-						Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-						Transmit_Data_Uart(*sUart3->huart,News);
-						Transmit_Data_Uart(*sUart1->huart,News);
-						check_cipsend = 2;
-						getTick_error_cipsend = HAL_GetTick();
-					}
-					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
+					Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
+					Transmit_Data_Uart(*sUart3->huart,News_Read);
+					Transmit_Data_Uart(*sUart1->huart,News_Read);
+					check_cipsend = 2;
+					getTick_error_cipsend = HAL_GetTick();
 				}
-				else
-				{
-					check_cipsend = 0;
-					return 1;
-				}
+				if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
 			}
 		}
 			
@@ -77,27 +79,19 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 		{
 			if(Check_CountBuffer_Complete_Uart3(sUart3)==1)
 			{
-				if(Check_Disconnect_Error(sUart1, sUart3)!=1) 
+				if(strstr(sUart3->sim_rx,"SUCCESS") != NULL) 
 				{
-					if(strstr(sUart3->sim_rx,"SUCCESS") != NULL) 
-					{
-						Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-						if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
-						Control_Read_News_Flash();
-						check_cipsend=0;
-						send_data=0;
-						FLASH_Write_Addr_Page_Write_Read(FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
-					}
-					if(strstr(sUart3->sim_rx,"FAIL") != NULL) 
-					{
-						check_cipsend = 0;
-						Delete_Buffer(sUart3);
-						return 1;
-					}
+					Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
+					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
+					Control_Read_News_Flash();
+					check_cipsend=0;
+					send_data=0;
+					FLASH_Write_Addr_Page_Write_Read(FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
 				}
-				else
+				if(strstr(sUart3->sim_rx,"FAIL") != NULL) 
 				{
 					check_cipsend = 0;
+					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
 					return 1;
 				}
 			}
@@ -106,13 +100,12 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 	return 0;
 }
 
-void Reset_SendData(void)
+void Packing_News(REAL_TIME *RTC_Current, uint8_t check_config, uint8_t check_connect)
 {
-	check_cipsend=0;
-}
-
-void Packing_News(REAL_TIME *RTC_Current)
-{
+	if(check_config == 0 || check_connect ==0)
+	{
+		check_cipsend = 0;
+	}
 	if(check_cipsend == 0)
 	{
 		send_data = 0;
@@ -122,17 +115,17 @@ void Packing_News(REAL_TIME *RTC_Current)
 	{
 		if(RTC_Current->Send_Data_Server == 1 )
 		{
-			if(check_packing_news == 1)
+			if(check_packing_news == 1 || check_packing_news == 0)
 			{
 				count_news++;	
-				Write_Data_News(RTC_Current, News, BYTE_OF_THE_NEWS, count_news);
+				Write_Data_News(RTC_Current, News_Write, LENGTH_BYTE_OF_THE_NEWS, count_news);
 				if(flash_addr_write == flash_page_write)
 				{
-					FLASH_WriteNews_Earse(flash_addr_write, News, FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
+					FLASH_WriteNews_Earse(flash_addr_write, News_Write, FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
 				}
 				else
 				{
-					FLASH_WriteNews(flash_addr_write, News, FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
+					FLASH_WriteNews(flash_addr_write, News_Write, FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
 				}
 				Control_Write_News_Flash();
 				send_data = 1;
@@ -155,14 +148,14 @@ void Packing_News(REAL_TIME *RTC_Current)
 
 void Control_Write_News_Flash(void)
 {
-	if(flash_addr_write + BYTE_OF_THE_NEWS > flash_page_write + FLASH_BYTE_OF_PAGE)
+	if(flash_addr_write + LENGTH_BYTE_OF_THE_NEWS > flash_page_write + FLASH_BYTE_OF_PAGE)
 	{
 		flash_page_write = flash_page_write + FLASH_BYTE_OF_PAGE;
 		flash_addr_write = flash_page_write;
 	}
 	else
 	{
-		flash_addr_write = flash_addr_write + BYTE_OF_THE_NEWS;
+		flash_addr_write = flash_addr_write + LENGTH_BYTE_OF_THE_NEWS;
 		if(flash_addr_write == flash_page_write + FLASH_BYTE_OF_PAGE)
 		{
 			flash_page_write = flash_page_write + FLASH_BYTE_OF_PAGE;
@@ -192,14 +185,14 @@ void Control_Write_News_Flash(void)
 
 void Control_Read_News_Flash(void)
 {
-	if(flash_addr_read + BYTE_OF_THE_NEWS > flash_page_read + FLASH_BYTE_OF_PAGE)
+	if(flash_addr_read + LENGTH_BYTE_OF_THE_NEWS > flash_page_read + FLASH_BYTE_OF_PAGE)
 	{
 		flash_page_read = flash_page_read + FLASH_BYTE_OF_PAGE;
 		flash_addr_read = flash_page_read;
 	}
 	else
 	{
-		flash_addr_read = flash_addr_read + BYTE_OF_THE_NEWS;
+		flash_addr_read = flash_addr_read + LENGTH_BYTE_OF_THE_NEWS;
 		if(flash_addr_read == flash_page_read + FLASH_BYTE_OF_PAGE)
 		{
 			flash_page_read = flash_page_read + FLASH_BYTE_OF_PAGE;
@@ -241,40 +234,33 @@ void Get_Addr_Read_Write(void)
 	{
 		flash_addr_read = FLASH_ReadData32(FLASH_ADDR_PAGE_253);
 		flash_page_read = (flash_addr_read/1024)*1024;
-		flash_addr_write= FLASH_ReadData32(FLASH_ADDR_PAGE_253 + 4) + BYTE_OF_THE_NEWS;
+		flash_addr_write= FLASH_ReadData32(FLASH_ADDR_PAGE_253 + 4) + LENGTH_BYTE_OF_THE_NEWS;
 		flash_page_write= (flash_addr_write/1024)*1024;
 	}
 }
 
-int8_t Receive_Control_Setup(UART_BUFFER *sUart1, UART_BUFFER *sUart3, uint8_t *check_connect, uint32_t *time1, uint32_t *time2,uint32_t *time3)
+int8_t Receive_Control_Setup(UART_BUFFER *sUart1, UART_BUFFER *sUart3, uint32_t *time1, uint32_t *time2,uint32_t *time3)
 {
 	if(Check_CountBuffer_Complete_Uart3(sUart3)==1)
 	{
-		if(Check_Disconnect_Error(sUart1, sUart3)!=1) 
+		if(strstr(sUart3->sim_rx,Sim_Control) != NULL)
 		{
-			if(strstr(sUart3->sim_rx,Sim_Control) != NULL)
+			Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
+			if(strstr(sUart3->sim_rx,"ONLED5") != NULL)
 			{
-				Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-				if(strstr(sUart3->sim_rx,"ONLED5") != NULL)
-				{
-					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);
-				}
-				if(strstr(sUart3->sim_rx,"OFFLED5") != NULL)
-				{
-					HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
-				}
-				if(strstr(sUart3->sim_rx,"RESET") != NULL)
-				{
-					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
-					return 1;
-				}
+				HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);
+			}
+			if(strstr(sUart3->sim_rx,"OFFLED5") != NULL)
+			{
+				HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
+			}
+			if(strstr(sUart3->sim_rx,"RESET") != NULL)
+			{
 				if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
-			}	
-		}
-		else
-		{
-			*check_connect=1;
-		}
+				return 1;
+			}
+			if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
+		}	
 	}
 	return 0;
 }
@@ -339,39 +325,7 @@ void Write_Data_News(REAL_TIME *RTC_Current, char News[], uint32_t lengthNews, u
 		News[i]=' ';
 		i++;
 	}
-	News[i]=' ';
-}
-
-int8_t Check_Receive_sendData_Control(UART_BUFFER *sUart1,UART_BUFFER *sUart3)
-{
-	uint8_t answer=0;
-	if(strstr(sUart3->sim_rx,"SUCCESS") != NULL) 
-	{
-		answer++;
-	}
-	
-	if(strstr(sUart3->sim_rx,Sim_Control) != NULL) 
-	{
-		answer++;
-	}
-	
-	if(strstr(sUart3->sim_rx,">") != NULL) 
-	{
-		answer++;
-	}
-	if(strstr(sUart3->sim_rx,"DISCONNECTED") != NULL) 
-	{
-		answer++;
-	}
-	if(strstr(sUart3->sim_rx,"ERROR") != NULL) 
-	{
-		answer++;
-	}
-	if(strstr(sUart3->sim_rx,"FAIL") != NULL) 
-	{
-		answer++;
-	}
-	return 1;
+	News[i]='\n';
 }
 
 void Uint_To_Char_Sim(char time[], uint32_t stamp, uint16_t *location)

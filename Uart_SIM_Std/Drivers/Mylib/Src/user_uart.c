@@ -19,17 +19,28 @@ int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart)
 			State_systick_countBuffer_uart1 = 1;
 			check_countBuffer_uart1 = sUart->countBuffer;
 		}
-		
-		if(HAL_GetTick() - Get_systick_countBuffer_uart1>1 && State_systick_countBuffer_uart1 == 1)	
+		else
 		{
-			if(check_countBuffer_uart1 == sUart->countBuffer)
+			if(HAL_GetTick() - Get_systick_countBuffer_uart1 > COMPLETE_RECEIVE_UART_TIME_MS)	
 			{
-				answer = 1;
+				if(check_countBuffer_uart1 == sUart->countBuffer)
+				{
+					//Get_systick_countBuffer_uart1 = HAL_GetTick();
+					answer = 1;
+				}
+				else
+				{
+					Get_systick_countBuffer_uart1 = HAL_GetTick();
+					check_countBuffer_uart1 = sUart->countBuffer;
+				}
 			}
 			else
 			{
-				Get_systick_countBuffer_uart1 = HAL_GetTick();
-				check_countBuffer_uart1 = sUart->countBuffer;
+				if(check_countBuffer_uart1 != sUart->countBuffer)
+				{
+					Get_systick_countBuffer_uart1 = HAL_GetTick();
+					check_countBuffer_uart1 = sUart->countBuffer;
+				}
 			}
 		}
 	}
@@ -51,17 +62,28 @@ int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart)
 			State_systick_countBuffer_uart3 = 1;
 			check_countBuffer_uart3 = sUart->countBuffer;
 		}
-		
-		if(HAL_GetTick() - Get_systick_countBuffer_uart3 > 1 && State_systick_countBuffer_uart3 == 1)	
+		else
 		{
-			if(check_countBuffer_uart3 == sUart->countBuffer)
+			if(HAL_GetTick() - Get_systick_countBuffer_uart3 > COMPLETE_RECEIVE_UART_TIME_MS)	
 			{
-				answer = 1;
+				if(check_countBuffer_uart3 == sUart->countBuffer)
+				{
+					//Get_systick_countBuffer_uart3 = HAL_GetTick();
+					answer = 1;
+				}
+				else
+				{
+					Get_systick_countBuffer_uart3 = HAL_GetTick();
+					check_countBuffer_uart3 = sUart->countBuffer;
+				}
 			}
 			else
 			{
-				Get_systick_countBuffer_uart3 = HAL_GetTick();
-				check_countBuffer_uart3 = sUart->countBuffer;
+				if(check_countBuffer_uart3 != sUart->countBuffer)
+				{
+					Get_systick_countBuffer_uart3 = HAL_GetTick();
+					check_countBuffer_uart3 = sUart->countBuffer;
+				}
 			}
 		}
 	}
@@ -72,7 +94,7 @@ int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart)
 	return answer;
 }
 
-void Transmit_Data_Uart(UART_HandleTypeDef huart,void* data)																								
+void Transmit_Data_Uart(UART_HandleTypeDef huart,char data[])																								
 {
 	HAL_UART_Transmit(&huart,(uint8_t *)data,(uint16_t)strlen(data),1000);
 	HAL_UART_Transmit(&huart,(uint8_t *)"\r\n",(uint16_t)strlen("\r\n"),1000);

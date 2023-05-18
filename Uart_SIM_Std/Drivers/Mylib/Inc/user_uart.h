@@ -4,6 +4,7 @@
 #include "stm32l1xx_hal.h"
 #include "string.h"
 
+#define COMPLETE_RECEIVE_UART_TIME_MS 1
 #define LENGTH_BUFFER_UART 5000
 
 typedef struct
@@ -18,6 +19,6 @@ int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart);
 int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart);
 int8_t Check_Rx_Complete(UART_BUFFER *sUart);
 
-void Transmit_Data_Uart(UART_HandleTypeDef huart,void* data);
+void Transmit_Data_Uart(UART_HandleTypeDef huart,char data[]);
 void Delete_Buffer(UART_BUFFER *sUart);
 #endif

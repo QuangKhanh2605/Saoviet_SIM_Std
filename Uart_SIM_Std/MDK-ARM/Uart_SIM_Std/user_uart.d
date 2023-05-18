@@ -1,5 +1,5 @@
 uart_sim_std\user_uart.o: ..\Drivers\Mylib\Src\user_uart.c
-uart_sim_std\user_uart.o: ..\Drivers\Mylib\Inc\user_uart.h
+uart_sim_std\user_uart.o: ../Drivers/Mylib/Inc/user_uart.h
 uart_sim_std\user_uart.o: ../Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h
 uart_sim_std\user_uart.o: ../Core/Inc/stm32l1xx_hal_conf.h
 uart_sim_std\user_uart.o: ../Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc.h

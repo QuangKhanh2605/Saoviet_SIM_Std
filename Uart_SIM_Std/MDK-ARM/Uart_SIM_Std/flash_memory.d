@@ -1,5 +1,5 @@
 uart_sim_std\flash_memory.o: ..\Drivers\Mylib\Src\flash_memory.c
-uart_sim_std\flash_memory.o: ..\Drivers\Mylib\Inc\Flash_Memory.h
+uart_sim_std\flash_memory.o: ../Drivers/Mylib/Inc/Flash_Memory.h
 uart_sim_std\flash_memory.o: ../Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal.h
 uart_sim_std\flash_memory.o: ../Core/Inc/stm32l1xx_hal_conf.h
 uart_sim_std\flash_memory.o: ../Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rcc.h

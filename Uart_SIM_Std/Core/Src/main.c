@@ -65,6 +65,8 @@ uint8_t get_RTC_complete=0;
 
 uint8_t check_config=0;
 uint8_t check_connect=0;
+uint32_t gettick_check=0;
+uint32_t max=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -90,7 +92,6 @@ void Time_Current(void);
   * @brief  The application entry point.
   * @retval int
   */
-
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -131,8 +132,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		gettick_check = HAL_GetTick();
 		Module_SIM();
 		Time_Current();
+		gettick_check = HAL_GetTick() - gettick_check;
+		if(gettick_check > max) max = gettick_check;
   }
   /* USER CODE END 3 */
 }
@@ -158,7 +162,10 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL3;
+  RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -168,12 +175,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -333,10 +340,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1|GPIO_PIN_5, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_13, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PC1 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PC5 */
   GPIO_InitStruct.Pin = GPIO_PIN_5;
@@ -369,8 +383,9 @@ void Module_SIM(void)
 			{
 				get_RTC=1;
 			}
-			check_connect =0;
+			check_connect = 1;
 		}
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
 	}
 	else
 	{
@@ -381,42 +396,33 @@ void Module_SIM(void)
 
 void Check_Disconnect_Error_SIM(void)
 {
-	if(Compare_Uart1_RX_Uart3_TX_True_Display(&sUart1, &sUart3, "DISCONNECTED") == 1)
+	if(Check_Disconnect_Error(&sUart1, &sUart3) == 1)
 	{
-		check_connect=1;
+		check_connect = 0;
+		Delete_Buffer(&sUart3);
 	}
-	
-	if(Compare_Uart1_RX_Uart3_TX_True_Display(&sUart1, &sUart3, "ERROR") == 1)
+	if(check_connect == 0)
 	{
-		check_connect=1;
-	}
-	
-	if(Compare_Uart1_RX_Uart3_TX_True_Display(&sUart1, &sUart3, "FAIL") == 1)
-	{
-		check_connect=1;
-	}
-	
-	if(check_connect == 1)
-	{
-		Reset_SendData(); 
 		int8_t connect_server = Connect_Server_SIM(&sUart1, &sUart3);
-		if(connect_server == 1) check_connect =0;
+		if(connect_server == 1) check_connect =1;
 		if(connect_server == -1) check_config =0;
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
 	}	
 }
 
 void SendData_Control_SIM(void)
 {
-	if(check_connect == 0 && check_config == 1)
+	if(check_connect == 1 && check_config == 1)
 	{
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
 		if(get_RTC == 1)
 		{
-			Get_Real_Time(&sUart1, &sUart3, &RTC_Current, &check_connect, &get_RTC, &get_RTC_complete );
+			Get_Real_Time(&sUart1, &sUart3, &RTC_Current, &get_RTC, &get_RTC_complete );
 		}
 		else
 		{
 			int8_t check_send_data = SendData_Server(&sUart1, &sUart3, &RTC_Current);
-			if(check_send_data == 1) check_connect = 1;
+			if(check_send_data == 1) check_connect = 0;
 			if(check_send_data == -1) check_config = 0;
 		}
 		
@@ -436,6 +442,7 @@ void Time_Current(void)
 	{
 		if(sTime.Seconds!=RTC_Current.Seconds)
 		{
+			RTC_Current.Send_Data_Server=1;
 			RTC_Current.Seconds = sTime.Seconds;
 			RTC_Current.Minutes = sTime.Minutes;
 			RTC_Current.Hour = sTime.Hours;
@@ -454,7 +461,7 @@ void Time_Current(void)
 	}
 	if(RTC_Current.Year != 0) 
 	{
-		Packing_News(&RTC_Current);
+		Packing_News(&RTC_Current, check_config, check_connect);
 	}
 }
 
@@ -477,13 +484,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   UNUSED(huart);
 	if(huart->Instance == huart3.Instance)
 	{
-		sUart3.sim_rx[(sUart3.countBuffer)++]= sUart3.buffer;
+		if(sUart3.countBuffer < LENGTH_BUFFER_UART)
+		{
+			sUart3.sim_rx[(sUart3.countBuffer)++]= sUart3.buffer;
+			if(sUart3.countBuffer == LENGTH_BUFFER_UART) sUart3.countBuffer=0;
+		}
 		HAL_UART_Receive_IT(&huart3,&sUart3.buffer,1);
 	}
 	
 	if(huart->Instance == huart1.Instance)
 	{
-		sUart1.sim_rx[(sUart1.countBuffer)++]= sUart1.buffer;
+		if(sUart1.countBuffer < LENGTH_BUFFER_UART)
+		{
+			sUart1.sim_rx[(sUart1.countBuffer)++]= sUart1.buffer;
+			if(sUart1.countBuffer == LENGTH_BUFFER_UART) sUart1.countBuffer=0;
+		}
 		HAL_UART_Receive_IT(&huart1,&sUart1.buffer,1);
 	}
   /* NOTE: This function should not be modified, when the callback is needed,

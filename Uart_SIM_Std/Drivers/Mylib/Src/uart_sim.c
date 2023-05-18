@@ -590,7 +590,7 @@ int8_t Wait_SMS_Receive(UART_BUFFER *sUart1, UART_BUFFER *sUart3,char* response)
 }
 
 
-void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current,uint8_t *check_connect, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete)
+void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete)
 {
 	if(*Get_RTC==1)
 	{
@@ -611,8 +611,6 @@ void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Curr
 	
 	if(Check_CountBuffer_Complete_Uart3(sUart3)==1)
 	{
-		if(Check_Disconnect_Error(sUart1, sUart3)!=1) 
-		{
 			if(strstr(sUart3->sim_rx,"CCLK:") != NULL) 
 			{
 				Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
@@ -633,13 +631,8 @@ void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Curr
 						break;	
 					}
 				}
-				Delete_Buffer(sUart3);
+				if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
 			}
-		}
-		else
-		{
-			*check_connect=1;
-		}
 	}
 }
 
@@ -706,20 +699,59 @@ int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 
 int8_t Check_Disconnect_Error(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
-	if(strstr(sUart3->sim_rx,"DISCONNECTED") != NULL) 
+	if(Check_CountBuffer_Complete_Uart3(sUart3) == 1)
 	{
-		Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-		Delete_Buffer(sUart3);
-		return 1;
-	}
-	
-	if(strstr(sUart3->sim_rx,"ERROR") != NULL) 
-	{
-		Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-		Delete_Buffer(sUart3);
-		return 1;
+		if(strstr(sUart3->sim_rx,"DISCONNECTED") != NULL) 
+		{
+			Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
+			Delete_Buffer(sUart3);
+			return 1;
+		}
+		
+		if(strstr(sUart3->sim_rx,"ERROR") != NULL) 
+		{
+			Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
+			Delete_Buffer(sUart3);
+			return 1;
+		}
 	}
 	return 0;
+}
+
+int8_t Check_Receive_sendData_Control(UART_BUFFER *sUart1,UART_BUFFER *sUart3)
+{
+	uint8_t answer=0;
+	if(strstr(sUart3->sim_rx,"SUCCESS") != NULL) 
+	{
+		answer++;
+	}
+	
+	if(strstr(sUart3->sim_rx,"CTL+") != NULL) 
+	{
+		answer++;
+	}
+	
+	if(strstr(sUart3->sim_rx,">") != NULL) 
+	{
+		answer++;
+	}
+	if(strstr(sUart3->sim_rx,"DISCONNECTED") != NULL) 
+	{
+		answer++;
+	}
+	if(strstr(sUart3->sim_rx,"ERROR") != NULL) 
+	{
+		answer++;
+	}
+	if(strstr(sUart3->sim_rx,"FAIL") != NULL) 
+	{
+		answer++;
+	}
+	if(strstr(sUart3->sim_rx,"CCLK:") != NULL) 
+	{
+		answer++;
+	}
+	return answer;
 }
 
 

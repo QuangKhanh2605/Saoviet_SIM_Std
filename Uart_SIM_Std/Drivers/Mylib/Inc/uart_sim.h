@@ -34,5 +34,7 @@ int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Check_Disconnect_Error(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Config_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 
-void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current,uint8_t *check_connect, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete);
+void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete);
+
+int8_t Check_Receive_sendData_Control(UART_BUFFER *sUart1,UART_BUFFER *sUart3);
 #endif
