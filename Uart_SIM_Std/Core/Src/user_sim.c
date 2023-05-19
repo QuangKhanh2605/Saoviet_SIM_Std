@@ -10,17 +10,17 @@ uint8_t check_packing_news=0;
 
 char Sim_Control[4]= "CTL+";
 
-uint32_t flash_addr_write=FLASH_ADDR_PAGE_NEWS_START;
-uint32_t flash_addr_read =FLASH_ADDR_PAGE_NEWS_START;
-uint32_t flash_page_write=FLASH_ADDR_PAGE_NEWS_START;
-uint32_t flash_page_read =FLASH_ADDR_PAGE_NEWS_START;
+uint32_t flash_addr_write = FLASH_ADDR_PAGE_NEWS_START;
+uint32_t flash_addr_read  = FLASH_ADDR_PAGE_NEWS_START;
+uint32_t flash_page_write = FLASH_ADDR_PAGE_NEWS_START;
+uint32_t flash_page_read  = FLASH_ADDR_PAGE_NEWS_START;
 
 void Control_Write_News_Flash(void);
 void Control_Read_News_Flash(void);
 void Write_Data_News(REAL_TIME *RTC_Current, char News[], uint32_t lengthNews, uint32_t countNews);
 void Uint_To_Char_Sim(char time[], uint32_t stamp, uint16_t *location);
 int8_t Error_Cipsend(void);
-	
+
 int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current)
 {
 	if(Error_Cipsend() == 1) return -1;
@@ -234,8 +234,9 @@ void Get_Addr_Read_Write(void)
 	{
 		flash_addr_read = FLASH_ReadData32(FLASH_ADDR_PAGE_253);
 		flash_page_read = (flash_addr_read/1024)*1024;
-		flash_addr_write= FLASH_ReadData32(FLASH_ADDR_PAGE_253 + 4) + LENGTH_BYTE_OF_THE_NEWS;
+		flash_addr_write= FLASH_ReadData32(FLASH_ADDR_PAGE_253 + 4);
 		flash_page_write= (flash_addr_write/1024)*1024;
+		Control_Write_News_Flash();
 	}
 }
 

@@ -34,6 +34,4 @@ uart_sim_std\main.o: ../Core/Inc/user_sim.h
 uart_sim_std\main.o: ../Drivers/Mylib/Inc/uart_sim.h
 uart_sim_std\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 uart_sim_std\main.o: ../Drivers/Mylib/Inc/user_uart.h
-uart_sim_std\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 uart_sim_std\main.o: ../Drivers/Mylib/Inc/Flash_Memory.h
-uart_sim_std\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

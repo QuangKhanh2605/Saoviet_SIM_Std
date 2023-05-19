@@ -54,7 +54,7 @@ void FLASH_ReadNews(uint32_t addr_start_read,char News[])
 	for(uint8_t i=0;i<length_tmp;i++)
 	{
 		tmp[i] = *(__IO uint32_t *)(addr_start_read);
-	(addr_start_read)=(addr_start_read)+4;
+		(addr_start_read)=(addr_start_read)+4;
 	}
 	for(uint8_t i=0;i<length_tmp;i++)
 	{

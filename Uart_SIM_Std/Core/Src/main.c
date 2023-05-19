@@ -65,8 +65,6 @@ uint8_t get_RTC_complete=0;
 
 uint8_t check_config=0;
 uint8_t check_connect=0;
-uint32_t gettick_check=0;
-uint32_t max=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -132,11 +130,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		gettick_check = HAL_GetTick();
 		Module_SIM();
 		Time_Current();
-		gettick_check = HAL_GetTick() - gettick_check;
-		if(gettick_check > max) max = gettick_check;
   }
   /* USER CODE END 3 */
 }

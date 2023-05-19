@@ -33,6 +33,4 @@ uart_sim_std\user_sim.o: ../Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_rtc_e
 uart_sim_std\user_sim.o: ../Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_uart.h
 uart_sim_std\user_sim.o: ../Drivers/STM32L1xx_HAL_Driver/Inc/stm32l1xx_hal_exti.h
 uart_sim_std\user_sim.o: ../Drivers/Mylib/Inc/user_uart.h
-uart_sim_std\user_sim.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 uart_sim_std\user_sim.o: ../Drivers/Mylib/Inc/Flash_Memory.h
-uart_sim_std\user_sim.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

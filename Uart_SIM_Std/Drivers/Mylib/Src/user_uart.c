@@ -21,7 +21,7 @@ int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart)
 		}
 		else
 		{
-			if(HAL_GetTick() - Get_systick_countBuffer_uart1 > COMPLETE_RECEIVE_UART_TIME_MS)	
+			if(HAL_GetTick() - Get_systick_countBuffer_uart1 > COMPLETE_RECEIVE_UART_TIME_MS_BAUDRATE_9600_115200)	
 			{
 				if(check_countBuffer_uart1 == sUart->countBuffer)
 				{
@@ -64,7 +64,7 @@ int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart)
 		}
 		else
 		{
-			if(HAL_GetTick() - Get_systick_countBuffer_uart3 > COMPLETE_RECEIVE_UART_TIME_MS)	
+			if(HAL_GetTick() - Get_systick_countBuffer_uart3 > COMPLETE_RECEIVE_UART_TIME_MS_BAUDRATE_9600_115200)	
 			{
 				if(check_countBuffer_uart3 == sUart->countBuffer)
 				{
