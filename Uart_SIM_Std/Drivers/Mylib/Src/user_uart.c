@@ -8,6 +8,11 @@ uint16_t check_countBuffer_uart3=0;
 uint32_t Get_systick_countBuffer_uart3=0;
 uint16_t State_systick_countBuffer_uart3=0;
 
+/*
+	@brief  Kiem tra da nhan xong Uart1 hay chua 
+	@return (0) chua nhan xong
+	@return (1) da nhan xong
+*/
 int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart)
 {
 	uint16_t answer=0;
@@ -51,6 +56,11 @@ int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart)
 	return answer;
 }
 
+/*
+	@brief  Kiem tra da nhan xong Uart3 hay chua 
+	@return (0) chua nhan xong
+	@return (1) da nhan xong
+*/
 int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart)
 {
 	uint16_t answer=0;
@@ -94,12 +104,30 @@ int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart)
 	return answer;
 }
 
-void Transmit_Data_Uart(UART_HandleTypeDef huart,char data[])																								
+/*
+	@brief  Truyen chuoi qua Uart 
+	@retval None
+*/
+void Transmit_Data_Uart(UART_HandleTypeDef huart, char data[])																								
 {
 	HAL_UART_Transmit(&huart,(uint8_t *)data,(uint16_t)strlen(data),1000);
 	HAL_UART_Transmit(&huart,(uint8_t *)"\r\n",(uint16_t)strlen("\r\n"),1000);
 }
 
+/*
+	@brief  Truyen chuoi qua Uart theo length
+	@retval None
+*/
+void Transmit_Data_Uart_Length(UART_HandleTypeDef huart, char data[], uint16_t length)																								
+{
+	HAL_UART_Transmit(&huart,(uint8_t *)data, length, 1000);
+	HAL_UART_Transmit(&huart,(uint8_t *)"\r\n",(uint16_t)strlen("\r\n"),1000);
+}
+
+/*
+	@brief  Xoa chuoi Uart nhan duoc 
+	@retval None
+*/
 void Delete_Buffer(UART_BUFFER *sUart)
 {
 	sUart->countBuffer=0;

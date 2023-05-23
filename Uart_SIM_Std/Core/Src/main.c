@@ -122,7 +122,7 @@ int main(void)
 	HAL_UART_Receive_IT(sUart3.huart,&sUart1.buffer,1);
 	Get_Addr_Read_Write();
   /* USER CODE END 2 */
-
+	
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -412,7 +412,13 @@ void SendData_Control_SIM(void)
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
 		if(get_RTC == 1)
 		{
-			Get_Real_Time(&sUart1, &sUart3, &RTC_Current, &get_RTC, &get_RTC_complete );
+			uint8_t check_Get_Real_Time=0;
+			check_Get_Real_Time = Get_Real_Time(&sUart1, &sUart3, &RTC_Current);
+			if(check_Get_Real_Time == 1)
+			{
+				get_RTC = 0;
+				get_RTC_complete = 1;
+			}
 		}
 		else
 		{
@@ -426,7 +432,7 @@ void SendData_Control_SIM(void)
 			Set_RTC(RTC_Current);
 			get_RTC_complete=0;
 		}
-	}	
+	}
 }
 
 void Time_Current(void)

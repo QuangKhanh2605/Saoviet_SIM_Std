@@ -23,5 +23,6 @@ int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart);
 int8_t Check_CountBuffer_Complete_Uart3(UART_BUFFER *sUart);
 
 void Transmit_Data_Uart(UART_HandleTypeDef huart,char data[]);
+void Transmit_Data_Uart_Length(UART_HandleTypeDef huart, char data[], uint16_t length);
 void Delete_Buffer(UART_BUFFER *sUart);
 #endif

@@ -25,10 +25,6 @@ uint8_t check_config_Sim = 0;
 uint8_t check_systick_CCLK=0;
 uint32_t get_systick_CCLK=0;
 
-void Setup_On_Off_Sim(GPIO_TypeDef* GPIO1, uint16_t GPIO_Pin_On_Off_Sim, 
-                      GPIO_TypeDef* GPIO2, uint16_t GPIO_Pin_PWKEY,  
-                      GPIO_TypeDef* GPIO3, uint16_t GPIO_Pin_RESET, uint32_t timeOut);
-
 int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Transmit_CFUN(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 
@@ -37,6 +33,12 @@ int8_t Config_SMS(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Config_Uart_Sim(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Check_Command_Config(UART_BUFFER *sUart1,UART_BUFFER *sUart3, char* command,char* response, uint8_t *time_10, uint32_t Time_Resend_Command);
 
+/*
+	@brief  Truyen chuoi tu Uart1 den Uart3 neu dung thi se hien thi qua Uart
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@param  response chuoi phan hoi de so sanh
+	@retval None
+*/
 int8_t Compare_Uart1_RX_Uart3_TX_True_Display(UART_BUFFER *sUart1, UART_BUFFER *sUart3,char* response)
 {
 	uint8_t answer = 0;
@@ -63,6 +65,12 @@ int8_t Compare_Uart1_RX_Uart3_TX_True_Display(UART_BUFFER *sUart1, UART_BUFFER *
 	return answer;
 }
 
+/*
+	@brief  Truyen chuoi tu Uart1 den Uart3 va hien thi qua Uart
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@param  response chuoi phan hoi de so sanh
+	@retval None
+*/
 int8_t Compare_Uart1_RX_Uart3_TX(UART_BUFFER *sUart1, UART_BUFFER *sUart3,char* response)
 {
 	uint8_t answer = 0;
@@ -89,6 +97,12 @@ int8_t Compare_Uart1_RX_Uart3_TX(UART_BUFFER *sUart1, UART_BUFFER *sUart3,char* 
 	return answer;
 }
 
+/*
+	@brief  Truyen chuoi tu Uart1 den Uart3 
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@param  response chuoi phan hoi de so sanh
+	@retval None
+*/
 int8_t Uart1_To_Uart3(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	uint8_t answer = 0;
@@ -107,6 +121,13 @@ int8_t Uart1_To_Uart3(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	return answer;
 }
 
+/*
+	@brief  Cau hinh SMS Module SIM
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (-1) Loi
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Config_SMS(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	switch (count_Transmit_SMS)
@@ -143,6 +164,13 @@ int8_t Config_SMS(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	return 0;
 }
 
+/*
+	@brief  Cau hinh TCP Module SIM
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (-1) Loi
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Config_TCP(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	switch (count_Transmit_TCP)
@@ -236,6 +264,13 @@ int8_t Config_TCP(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	return 0;
 }
 
+/*
+	@brief  Truyen CFUN=4 va CFUN=1
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (-1) Loi
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Transmit_CFUN(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	switch (count_Transmit_CFUN)
@@ -271,6 +306,14 @@ int8_t Transmit_CFUN(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	}
 	return 0;
 }
+
+/*
+	@brief  Cau hinh ban dau cho Module SIM
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (-1) Loi
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Config_Uart_Sim(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	switch (count_Transmit_Uart_SIM)
@@ -413,7 +456,16 @@ int8_t Config_Uart_Sim(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	return 0;
 }
 
-
+/*
+	@brief  Gui va kiem tra phan hoi cua Command
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@param  command lenh gui toi Module Sim
+	@param  response phan hoi tu Module Sim
+	@param  time_10 neu gui 10 lan khong thanh cong thi tra ve loi
+	@param  Time_Resend_Command thoi gian gui lai lenh command neu khong thanh cong
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* command,char* response, uint8_t *time_10, uint32_t Time_Resend_Command)
 {
 	if(check_Transmit==0 )
@@ -467,6 +519,12 @@ int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* comm
 	return 0;
 }
 
+/*
+	@brief  Toan bo cau hinh Module SIM
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Config_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	if(check_config_Sim==0) 
@@ -516,15 +574,38 @@ int8_t Config_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	return 0;
 }
 
+/*
+	@brief  Bat Module Sim
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	uint32_t run_Time=0;
 	if(HAL_GetTick() - check_systick_Sim<=TIME_ON_SIM)
 	{
 		run_Time=(HAL_GetTick() - check_systick_Sim )/1000;
-		Setup_On_Off_Sim(GPIOB, On_Off_Sim,
-										 GPIOB, Pin_PWKEY,
-										 GPIOC, Pin_RESET, run_Time);
+		if(run_Time<=2)
+		{
+			HAL_GPIO_WritePin(GPIO_PIN_ON_OFF_SIM, PIN_ON_OFF_SIM,GPIO_PIN_RESET);
+		}
+		
+		if(run_Time>2 && run_Time<=3)
+		{
+			HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIO_PIN_RESET_SIM, PIN_RESET_SIM,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIO_PIN_ON_OFF_SIM, PIN_ON_OFF_SIM,GPIO_PIN_SET);
+		}
+		
+		if(run_Time>3 && run_Time <=6)
+		{
+			HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_SET);
+		}
+		if(run_Time>6 && run_Time <=21)
+		{
+			HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_RESET);
+		}
 		return 0;
 	}
 	else
@@ -534,108 +615,63 @@ int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	}
 }
 
-int8_t Setup_SIM_Before_While(UART_BUFFER *sUart1, UART_BUFFER *sUart3, uint32_t runTime )
+/*
+	@brief  Hoi va lay thoi gian thuc 
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@param  RTC_Current Struct luu thoi gian thuc
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
+int8_t Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current)
 {
-	uint32_t get_systick_Sim = HAL_GetTick();
-	uint32_t run_Time=0;
-	while(HAL_GetTick() - get_systick_Sim <=TIME_ON_SIM)
+	if(check_systick_CCLK == 0)
 	{
-	run_Time=(HAL_GetTick() - get_systick_Sim )/1000;
-	Setup_On_Off_Sim(GPIOB, On_Off_Sim,
-                   GPIOB, Pin_PWKEY,
-									 GPIOC, Pin_RESET, run_Time);
+		Transmit_Data_Uart(*sUart3->huart,"AT+CCLK?");
+		get_systick_CCLK = HAL_GetTick();
+		check_systick_CCLK = 1;
 	}
-	Delete_Buffer(sUart3);
-	return 1;
-}
-
-void Setup_On_Off_Sim(GPIO_TypeDef* GPIO1, uint16_t GPIO_Pin_On_Off_Sim, 
-                      GPIO_TypeDef* GPIO2, uint16_t GPIO_Pin_PWKEY,  
-                      GPIO_TypeDef* GPIO3, uint16_t GPIO_Pin_RESET, uint32_t timeOut)
-{
-	if(timeOut<=2)
+	if(check_systick_CCLK == 1)
 	{
-	HAL_GPIO_WritePin(GPIOB, GPIO_Pin_On_Off_Sim,GPIO_PIN_RESET);
-	}
-	
-	if(timeOut>2 && timeOut<=3)
-	{
-	HAL_GPIO_WritePin(GPIOB, GPIO_Pin_PWKEY,GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOC, GPIO_Pin_RESET,GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOB, GPIO_Pin_On_Off_Sim,GPIO_PIN_SET);
-	}
-	
-	if(timeOut>3 && timeOut <=6)
-	{
-	HAL_GPIO_WritePin(GPIOB, GPIO_Pin_PWKEY,GPIO_PIN_SET);
-	}
-	if(timeOut>6 && timeOut <=21)
-	{
-	HAL_GPIO_WritePin(GPIOB, GPIO_Pin_PWKEY,GPIO_PIN_RESET);
-	}
-}
-
-int8_t Wait_SMS_Receive(UART_BUFFER *sUart1, UART_BUFFER *sUart3,char* response)
-{
-	uint8_t answer = 0;
-		if(strstr(sUart3->sim_rx,response) != NULL) 
+		if(HAL_GetTick() - get_systick_CCLK > TIME_RESEND_COMMAND_IF_NOT_RECEIVE)
 		{
-			answer = 1;
-		}
-		else 
-		{
-			answer = 0;
-		}
-	return answer;
-}
-
-
-void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete)
-{
-	if(*Get_RTC==1)
-	{
-		if(check_systick_CCLK == 0)
-		{
-			Transmit_Data_Uart(*sUart3->huart,"AT+CCLK?");
-			get_systick_CCLK = HAL_GetTick();
-			check_systick_CCLK = 1;
-		}
-		if(check_systick_CCLK == 1)
-		{
-			if(HAL_GetTick() - get_systick_CCLK > TIME_RESEND_COMMAND_IF_NOT_RECEIVE)
-			{
-				check_systick_CCLK = 0;
-			}
+			check_systick_CCLK = 0;
 		}
 	}
 	
 	if(Check_CountBuffer_Complete_Uart3(sUart3)==1)
 	{
-			if(strstr(sUart3->sim_rx,"CCLK:") != NULL) 
+		if(strstr(sUart3->sim_rx,"CCLK:") != NULL) 
+		{
+			Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
+			for(uint16_t i=0; i<sUart3->countBuffer;i++)
 			{
-				Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-				for(uint16_t i=0; i<sUart3->countBuffer;i++)
+				if(sUart3->sim_rx[i] == '"' && sUart3->sim_rx[i+21] == '"')
 				{
-					if(sUart3->sim_rx[i] == '"' && sUart3->sim_rx[i+21] == '"')
-					{
-						RTC_Current->Seconds = (sUart3->sim_rx[i+16]- 48)*10 + sUart3->sim_rx[i+17] -48;
-						RTC_Current->Minutes = (sUart3->sim_rx[i+13]- 48)*10 + sUart3->sim_rx[i+14] -48;
-						RTC_Current->Hour    = (sUart3->sim_rx[i+10]- 48)*10 + sUart3->sim_rx[i+11] -48;
-						
-						RTC_Current->Date  = (sUart3->sim_rx[i+7]- 48)*10 + sUart3->sim_rx[i+8] -48;
-						RTC_Current->Month = (sUart3->sim_rx[i+4]- 48)*10 + sUart3->sim_rx[i+5] -48;
-						RTC_Current->Year  = (sUart3->sim_rx[i+1]- 48)*10 + sUart3->sim_rx[i+2] -48;
-						*Get_RTC_Complete=1;
-						check_systick_CCLK = 0;
-						*Get_RTC=0;
-						break;	
-					}
+					RTC_Current->Seconds = (sUart3->sim_rx[i+16]- 48)*10 + sUart3->sim_rx[i+17] -48;
+					RTC_Current->Minutes = (sUart3->sim_rx[i+13]- 48)*10 + sUart3->sim_rx[i+14] -48;
+					RTC_Current->Hour    = (sUart3->sim_rx[i+10]- 48)*10 + sUart3->sim_rx[i+11] -48;
+					
+					RTC_Current->Date  = (sUart3->sim_rx[i+7]- 48)*10 + sUart3->sim_rx[i+8] -48;
+					RTC_Current->Month = (sUart3->sim_rx[i+4]- 48)*10 + sUart3->sim_rx[i+5] -48;
+					RTC_Current->Year  = (sUart3->sim_rx[i+1]- 48)*10 + sUart3->sim_rx[i+2] -48;
+					
+					check_systick_CCLK = 0;
+					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
+					return 1;
 				}
-				if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
 			}
+		}
 	}
+	return 0;
 }
 
+/*
+	@brief  Ket noi Module Sim voi Server
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (-1) Loi
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	if(check_config_Sim==0) 
@@ -697,6 +733,12 @@ int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	return 0;
 }
 
+/*
+	@brief  Phat hien mat ket noi voi server
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (1) Mat ket noi
+	@return (0) Khong mat ket noi
+*/
 int8_t Check_Disconnect_Error(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
 	if(Check_CountBuffer_Complete_Uart3(sUart3) == 1)
@@ -718,6 +760,11 @@ int8_t Check_Disconnect_Error(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	return 0;
 }
 
+/*
+	@brief  Kiem tra chuoi Uart nhan duoc truoc khi xoa
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return answer so lan xuat hien chuoi can kiem tra trong chuong trinh
+*/
 int8_t Check_Receive_sendData_Control(UART_BUFFER *sUart1,UART_BUFFER *sUart3)
 {
 	uint8_t answer=0;
@@ -735,22 +782,27 @@ int8_t Check_Receive_sendData_Control(UART_BUFFER *sUart1,UART_BUFFER *sUart3)
 	{
 		answer++;
 	}
+	
 	if(strstr(sUart3->sim_rx,"DISCONNECTED") != NULL) 
 	{
 		answer++;
 	}
+	
 	if(strstr(sUart3->sim_rx,"ERROR") != NULL) 
 	{
 		answer++;
 	}
+	
 	if(strstr(sUart3->sim_rx,"FAIL") != NULL) 
 	{
 		answer++;
 	}
+
 	if(strstr(sUart3->sim_rx,"CCLK:") != NULL) 
 	{
 		answer++;
 	}
+	
 	return answer;
 }
 

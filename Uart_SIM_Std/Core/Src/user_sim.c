@@ -21,6 +21,14 @@ void Write_Data_News(REAL_TIME *RTC_Current, char News[], uint32_t lengthNews, u
 void Uint_To_Char_Sim(char time[], uint32_t stamp, uint16_t *location);
 int8_t Error_Cipsend(void);
 
+/*
+	@brief  Gui du lieu len server
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@param  RTC_Current Struct luu thoi gian thuc
+	@rerurn (-1) Mat ket noi
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
 int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current)
 {
 	if(Error_Cipsend() == 1) return -1;
@@ -66,8 +74,8 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 				if(strstr(sUart3->sim_rx,">") != NULL) 
 				{
 					Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-					Transmit_Data_Uart(*sUart3->huart,News_Read);
-					Transmit_Data_Uart(*sUart1->huart,News_Read);
+					Transmit_Data_Uart(*sUart3->huart, News_Read);
+					Transmit_Data_Uart(*sUart1->huart, News_Read);
 					check_cipsend = 2;
 					getTick_error_cipsend = HAL_GetTick();
 				}
@@ -100,6 +108,12 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 	return 0;
 }
 
+/*
+	@brief  Dong goi ban tin
+	@param  RTC_Current Struct luu thoi gian thuc
+	@param  check_config va check_connect de xac nhan co mat ket noi hay khong
+	@retval None
+*/
 void Packing_News(REAL_TIME *RTC_Current, uint8_t check_config, uint8_t check_connect)
 {
 	if(check_config == 0 || check_connect ==0)
@@ -146,6 +160,10 @@ void Packing_News(REAL_TIME *RTC_Current, uint8_t check_config, uint8_t check_co
 	}
 }
 
+/*
+	@brief  Dieu khien dia chi va page viet ban tin trong Flash
+	@retval None
+*/
 void Control_Write_News_Flash(void)
 {
 	if(flash_addr_write + LENGTH_BYTE_OF_THE_NEWS > flash_page_write + FLASH_BYTE_OF_PAGE)
@@ -183,6 +201,10 @@ void Control_Write_News_Flash(void)
 	}
 }
 
+/*
+	@brief  Dieu khien dia chi va page doc ban tin trong Flash
+	@retval None
+*/
 void Control_Read_News_Flash(void)
 {
 	if(flash_addr_read + LENGTH_BYTE_OF_THE_NEWS > flash_page_read + FLASH_BYTE_OF_PAGE)
@@ -206,6 +228,11 @@ void Control_Read_News_Flash(void)
 	}
 }
 
+/*
+	@brief  Kiem tra loi trong khi gui ban tin
+	@return (1) Mat ket noi
+	@return (0) Khong mat ket noi 
+*/
 int8_t Error_Cipsend(void)
 {
 	if(check_cipsend == 1)
@@ -228,9 +255,13 @@ int8_t Error_Cipsend(void)
 	return 0;
 }
 
+/*
+	@brief  Doc dia chi dang doc va viet trong Flash
+	@retval None
+*/
 void Get_Addr_Read_Write(void)
 {
-	if(FLASH_ReadData32(FLASH_ADDR_PAGE_253) != 0 && FLASH_ReadData32(FLASH_ADDR_PAGE_253+4) != 0)
+	if(FLASH_ReadData32(FLASH_ADDR_PAGE_253) != 0 && FLASH_ReadData32(FLASH_ADDR_PAGE_253 + 4) != 0)
 	{
 		flash_addr_read = FLASH_ReadData32(FLASH_ADDR_PAGE_253);
 		flash_page_read = (flash_addr_read/1024)*1024;

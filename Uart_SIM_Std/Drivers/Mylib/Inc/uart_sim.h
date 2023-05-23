@@ -5,9 +5,13 @@
 #include "stm32l1xx_hal.h"
 #include "user_uart.h"
 
-#define On_Off_Sim GPIO_PIN_13
-#define Pin_PWKEY  GPIO_PIN_0
-#define Pin_RESET  GPIO_PIN_5
+#define GPIO_PIN_ON_OFF_SIM                GPIOB
+#define GPIO_PIN_PWKEY_SIM                 GPIOB
+#define GPIO_PIN_RESET_SIM                 GPIOC
+
+#define PIN_ON_OFF_SIM                     GPIO_PIN_13
+#define PIN_PWKEY_SIM                      GPIO_PIN_0
+#define PIN_RESET_SIM                      GPIO_PIN_5
 
 #define TIME_ON_SIM                        23000
 #define TIME_RESEND_COMMAND_IF_NOT_RECEIVE 500
@@ -34,7 +38,7 @@ int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Check_Disconnect_Error(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Config_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 
-void Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current, uint8_t *Get_RTC, uint8_t *Get_RTC_Complete);
+int8_t Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current);
 
 int8_t Check_Receive_sendData_Control(UART_BUFFER *sUart1,UART_BUFFER *sUart3);
 #endif

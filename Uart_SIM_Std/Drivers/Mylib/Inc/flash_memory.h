@@ -3,7 +3,7 @@
 
 #include "stm32l1xx_hal.h"
 
-#define FLASH_BYTE_OF_PAGE 1024
+#define FLASH_BYTE_OF_PAGE        1024
 #define LENGTH_BYTE_OF_THE_NEWS   32    //  BYTE_OF_THE_NEWS % 4 == 0
 
 #define FLASH_ADDR_PAGE_126 ((uint32_t)0x0801F810)	//Page 126
