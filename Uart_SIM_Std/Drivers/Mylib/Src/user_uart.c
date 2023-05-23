@@ -10,6 +10,7 @@ uint16_t State_systick_countBuffer_uart3=0;
 
 /*
 	@brief  Kiem tra da nhan xong Uart1 hay chua 
+	@param  sUart Struct uart muon kiem tra
 	@return (0) chua nhan xong
 	@return (1) da nhan xong
 */
@@ -58,6 +59,7 @@ int8_t Check_CountBuffer_Complete_Uart1(UART_BUFFER *sUart)
 
 /*
 	@brief  Kiem tra da nhan xong Uart3 hay chua 
+	@param  sUart Struct uart muon kiem tra
 	@return (0) chua nhan xong
 	@return (1) da nhan xong
 */

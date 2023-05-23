@@ -135,9 +135,9 @@ void FLASH_ReadNews(uint32_t addr_start_read, char News[])
 }
 
 /*
-	@brief  Doc Byte tu Flash
-	@param  addr dia chi byte can doc
-	@retval None
+	@brief  Doc byte tu Flash
+	@param  addr dia chi byte muon doc trong flash
+	@return du lieu tai dia chi muon doc
 */
 uint32_t FLASH_ReadData32(uint32_t addr)
 {
