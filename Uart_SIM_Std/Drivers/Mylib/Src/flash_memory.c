@@ -85,7 +85,7 @@ void FLASH_WriteNews_Earse(uint32_t addr_start_write, char News[], uint32_t addr
 	
 	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS/4;
 	uint32_t tmp[length_tmp];
-	for(uint8_t i=0;i<length_tmp;i++)
+	for(uint8_t i=0; i<length_tmp; i++)
 	{
 		tmp[i]=News[i];
 		for(uint8_t j=i*4;j<i*4+4;j++)
@@ -118,15 +118,15 @@ void FLASH_ReadNews(uint32_t addr_start_read, char News[])
 {
 	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS/4;
 	uint32_t tmp[length_tmp];
-	for(uint8_t i=0;i<length_tmp;i++)
+	for(uint8_t i=0; i<length_tmp; i++)
 	{
 		tmp[i] = *(__IO uint32_t *)(addr_start_read);
 		(addr_start_read)=(addr_start_read)+4;
 	}
-	for(uint8_t i=0;i<length_tmp;i++)
+	for(uint8_t i=0; i<length_tmp; i++)
 	{
 		uint8_t drop = 32-8;
-		for(uint8_t j=i*4;j<i*4+4;j++)
+		for(uint8_t j=i*4; j<i*4+4; j++)
 		{
 			News[j]=tmp[i] >> drop; 
 			drop=drop-8;

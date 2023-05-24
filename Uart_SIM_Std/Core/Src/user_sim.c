@@ -2,6 +2,8 @@
 
 char News_Write[LENGTH_BYTE_OF_THE_NEWS];
 char News_Read[LENGTH_BYTE_OF_THE_NEWS];
+char AT_CIPSEND[]="AT+CIPSEND=1,32";
+
 uint32_t count_news=0;
 uint32_t getTick_error_cipsend=0;
 uint8_t check_cipsend=0;
@@ -54,10 +56,10 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 						break;
 					}
 				}
-				if(News_Read[31] == '\n' && check_error == 0)
+				if(check_error == 0)
 				{
-					Transmit_Data_Uart(*sUart3->huart,"AT+CIPSEND=1,32");
-					Transmit_Data_Uart(*sUart1->huart,"AT+CIPSEND=1,32");
+					Transmit_Data_Uart(*sUart3->huart,AT_CIPSEND);
+					Transmit_Data_Uart(*sUart1->huart,AT_CIPSEND);
 					check_cipsend=1;
 					getTick_error_cipsend = HAL_GetTick();
 				}
@@ -166,6 +168,7 @@ void Packing_News(REAL_TIME *RTC_Current, uint8_t check_config, uint8_t check_co
 */
 void Control_Write_News_Flash(void)
 {
+	flash_addr_write = flash_addr_write + LENGTH_BYTE_OF_THE_NEWS;
 	if(flash_addr_write + LENGTH_BYTE_OF_THE_NEWS > flash_page_write + FLASH_BYTE_OF_PAGE)
 	{
 		flash_page_write = flash_page_write + FLASH_BYTE_OF_PAGE;
@@ -173,7 +176,6 @@ void Control_Write_News_Flash(void)
 	}
 	else
 	{
-		flash_addr_write = flash_addr_write + LENGTH_BYTE_OF_THE_NEWS;
 		if(flash_addr_write == flash_page_write + FLASH_BYTE_OF_PAGE)
 		{
 			flash_page_write = flash_page_write + FLASH_BYTE_OF_PAGE;
@@ -207,6 +209,7 @@ void Control_Write_News_Flash(void)
 */
 void Control_Read_News_Flash(void)
 {
+	flash_addr_read = flash_addr_read + LENGTH_BYTE_OF_THE_NEWS;
 	if(flash_addr_read + LENGTH_BYTE_OF_THE_NEWS > flash_page_read + FLASH_BYTE_OF_PAGE)
 	{
 		flash_page_read = flash_page_read + FLASH_BYTE_OF_PAGE;
@@ -214,7 +217,6 @@ void Control_Read_News_Flash(void)
 	}
 	else
 	{
-		flash_addr_read = flash_addr_read + LENGTH_BYTE_OF_THE_NEWS;
 		if(flash_addr_read == flash_page_read + FLASH_BYTE_OF_PAGE)
 		{
 			flash_page_read = flash_page_read + FLASH_BYTE_OF_PAGE;

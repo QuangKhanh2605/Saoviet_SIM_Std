@@ -24,6 +24,7 @@ uint8_t check_config_Sim = 0;
 
 uint8_t check_systick_CCLK=0;
 uint32_t get_systick_CCLK=0;
+uint8_t time_3_Get_Real_Time=0;
 
 int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Transmit_CFUN(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
@@ -621,11 +622,18 @@ int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	@param  RTC_Current Struct luu thoi gian thuc
 	@return (1) Hoan thanh
 	@return (0) Chua hoan thanh
+	@return (-1) Loi
 */
 int8_t Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current)
 {
 	if(check_systick_CCLK == 0)
 	{
+		time_3_Get_Real_Time++;
+		if(time_3_Get_Real_Time >= 3)
+		{
+			time_3_Get_Real_Time = 0;
+			return -1;
+		}
 		Transmit_Data_Uart(*sUart3->huart,"AT+CCLK?");
 		get_systick_CCLK = HAL_GetTick();
 		check_systick_CCLK = 1;
@@ -642,6 +650,7 @@ int8_t Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Cu
 	{
 		if(strstr(sUart3->sim_rx,"CCLK:") != NULL) 
 		{
+			time_3_Get_Real_Time = 0;
 			Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
 			for(uint16_t i=0; i<sUart3->countBuffer;i++)
 			{
@@ -802,7 +811,6 @@ int8_t Check_Receive_sendData_Control(UART_BUFFER *sUart1,UART_BUFFER *sUart3)
 	{
 		answer++;
 	}
-	
 	return answer;
 }
 

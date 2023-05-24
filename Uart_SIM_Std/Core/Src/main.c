@@ -412,12 +412,16 @@ void SendData_Control_SIM(void)
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
 		if(get_RTC == 1)
 		{
-			uint8_t check_Get_Real_Time=0;
+			int8_t check_Get_Real_Time=0;
 			check_Get_Real_Time = Get_Real_Time(&sUart1, &sUart3, &RTC_Current);
 			if(check_Get_Real_Time == 1)
 			{
 				get_RTC = 0;
 				get_RTC_complete = 1;
+			}
+			if(check_Get_Real_Time == -1) 
+			{
+				check_config = 0;
 			}
 		}
 		else
