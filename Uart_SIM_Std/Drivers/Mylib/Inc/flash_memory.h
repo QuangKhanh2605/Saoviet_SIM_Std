@@ -3,22 +3,23 @@
 
 #include "stm32l1xx_hal.h"
 
-#define FLASH_BYTE_OF_PAGE        1024
-#define LENGTH_BYTE_OF_THE_NEWS   32    //  BYTE_OF_THE_NEWS % 4 == 0
+#define FLASH_BYTE_OF_PAGE             1024
+#define LENGTH_BYTE_OF_THE_NEWS        32    
+#define LENGTH_BYTE_OF_THE_NEWS_FLASH  ((LENGTH_BYTE_OF_THE_NEWS%4==0) ? (LENGTH_BYTE_OF_THE_NEWS) : (LENGTH_BYTE_OF_THE_NEWS/4+1)*4)
 
-#define FLASH_ADDR_PAGE_126 ((uint32_t)0x0801F810)	//Page 126
-#define FLASH_ADDR_PAGE_127 ((uint32_t)0x0801FC00)	//Page 127
+#define FLASH_ADDR_PAGE_126            ((uint32_t)0x0801F810)	//Page 126
+#define FLASH_ADDR_PAGE_127            ((uint32_t)0x0801FC00)	//Page 127
 
-#define FLASH_ADDR_PAGE_NEWS_START ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*100) //Page 100
-#define FLASH_ADDR_PAGE_NEWS_END   ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*253) //Page 253
+#define FLASH_ADDR_PAGE_NEWS_START     ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*100) //Page 100
+#define FLASH_ADDR_PAGE_NEWS_END       ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*253) //Page 253
 
-#define FLASH_ADDR_PAGE_253 ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*253) //Page 253
+#define FLASH_ADDR_PAGE_253            ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*253) //Page 253
 
-#define FLASH_ADDR_PAGE_254 ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*254) //Page 254
-#define FLASH_ADDR_PAGE_255 ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*255) //Page 255
+#define FLASH_ADDR_PAGE_254            ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*254) //Page 254
+#define FLASH_ADDR_PAGE_255            ((uint32_t)0x08000000 + FLASH_BYTE_OF_PAGE*255) //Page 255
 
-#define FLASH_USER_START_ADDR   FLASH_ADDR_PAGE_254
-#define FLASH_USER_END_ADDR     FLASH_ADDR_PAGE_255 
+#define FLASH_USER_START_ADDR          FLASH_ADDR_PAGE_254
+#define FLASH_USER_END_ADDR            FLASH_ADDR_PAGE_255 
 
 void FLASH_WriteNews(uint32_t addr_start_write,char News[], uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write);
 void FLASH_WriteNews_Earse(uint32_t addr_start_write,char News[], uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write);

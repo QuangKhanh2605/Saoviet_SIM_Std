@@ -37,7 +37,7 @@ void FLASH_WritePage(uint32_t startPage, uint32_t endPage, uint32_t check, uint3
 void FLASH_WriteNews(uint32_t addr_start_write, char News[], uint32_t addr_start_save, uint32_t addr_read, uint32_t addr_write)
 {
   HAL_FLASH_Unlock();
-	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS/4;
+	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS_FLASH/4;
 	uint32_t tmp[length_tmp];
 	for(uint8_t i=0;i<length_tmp;i++)
 	{
@@ -83,7 +83,7 @@ void FLASH_WriteNews_Earse(uint32_t addr_start_write, char News[], uint32_t addr
 	uint32_t PageError = 0;
 	HAL_FLASHEx_Erase(&EraseInit, &PageError);
 	
-	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS/4;
+	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS_FLASH/4;
 	uint32_t tmp[length_tmp];
 	for(uint8_t i=0; i<length_tmp; i++)
 	{
@@ -116,7 +116,7 @@ void FLASH_WriteNews_Earse(uint32_t addr_start_write, char News[], uint32_t addr
 */
 void FLASH_ReadNews(uint32_t addr_start_read, char News[])
 {
-	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS/4;
+	uint8_t length_tmp = LENGTH_BYTE_OF_THE_NEWS_FLASH/4;
 	uint32_t tmp[length_tmp];
 	for(uint8_t i=0; i<length_tmp; i++)
 	{

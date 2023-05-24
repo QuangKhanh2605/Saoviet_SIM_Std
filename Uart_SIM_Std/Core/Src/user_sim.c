@@ -1,7 +1,7 @@
 #include "user_sim.h"
 
-char News_Write[LENGTH_BYTE_OF_THE_NEWS];
-char News_Read[LENGTH_BYTE_OF_THE_NEWS];
+char News_Write[LENGTH_BYTE_OF_THE_NEWS_FLASH];
+char News_Read[LENGTH_BYTE_OF_THE_NEWS_FLASH];
 char AT_CIPSEND[]="AT+CIPSEND=1,32";
 
 uint32_t count_news=0;
@@ -48,7 +48,7 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 			{
 				FLASH_ReadNews(flash_addr_read, News_Read);
 				uint8_t check_error=0;
-				for(uint8_t i=0; i< LENGTH_BYTE_OF_THE_NEWS; i++)
+				for(uint8_t i=0; i< LENGTH_BYTE_OF_THE_NEWS_FLASH; i++)
 				{
 					if(News_Read[i] == 0x00) 
 					{
@@ -76,7 +76,8 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 				if(strstr(sUart3->sim_rx,">") != NULL) 
 				{
 					Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
-					Transmit_Data_Uart(*sUart3->huart, News_Read);
+					Transmit_Data_Uart_Length(*sUart3->huart, News_Read, LENGTH_BYTE_OF_THE_NEWS);
+					//Transmit_Data_Uart(*sUart3->huart, News_Read);
 					Transmit_Data_Uart(*sUart1->huart, News_Read);
 					check_cipsend = 2;
 					getTick_error_cipsend = HAL_GetTick();
@@ -134,7 +135,7 @@ void Packing_News(REAL_TIME *RTC_Current, uint8_t check_config, uint8_t check_co
 			if(check_packing_news == 1 || check_packing_news == 0)
 			{
 				count_news++;	
-				Write_Data_News(RTC_Current, News_Write, LENGTH_BYTE_OF_THE_NEWS, count_news);
+				Write_Data_News(RTC_Current, News_Write, LENGTH_BYTE_OF_THE_NEWS_FLASH, count_news);
 				if(flash_addr_write == flash_page_write)
 				{
 					FLASH_WriteNews_Earse(flash_addr_write, News_Write, FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
@@ -168,8 +169,8 @@ void Packing_News(REAL_TIME *RTC_Current, uint8_t check_config, uint8_t check_co
 */
 void Control_Write_News_Flash(void)
 {
-	flash_addr_write = flash_addr_write + LENGTH_BYTE_OF_THE_NEWS;
-	if(flash_addr_write + LENGTH_BYTE_OF_THE_NEWS > flash_page_write + FLASH_BYTE_OF_PAGE)
+	flash_addr_write = flash_addr_write + LENGTH_BYTE_OF_THE_NEWS_FLASH;
+	if(flash_addr_write + LENGTH_BYTE_OF_THE_NEWS_FLASH > flash_page_write + FLASH_BYTE_OF_PAGE)
 	{
 		flash_page_write = flash_page_write + FLASH_BYTE_OF_PAGE;
 		flash_addr_write = flash_page_write;
@@ -209,8 +210,8 @@ void Control_Write_News_Flash(void)
 */
 void Control_Read_News_Flash(void)
 {
-	flash_addr_read = flash_addr_read + LENGTH_BYTE_OF_THE_NEWS;
-	if(flash_addr_read + LENGTH_BYTE_OF_THE_NEWS > flash_page_read + FLASH_BYTE_OF_PAGE)
+	flash_addr_read = flash_addr_read + LENGTH_BYTE_OF_THE_NEWS_FLASH;
+	if(flash_addr_read + LENGTH_BYTE_OF_THE_NEWS_FLASH > flash_page_read + FLASH_BYTE_OF_PAGE)
 	{
 		flash_page_read = flash_page_read + FLASH_BYTE_OF_PAGE;
 		flash_addr_read = flash_page_read;

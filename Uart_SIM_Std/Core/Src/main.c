@@ -90,6 +90,8 @@ void Time_Current(void);
   * @brief  The application entry point.
   * @retval int
   */
+	uint32_t max=0;
+	uint32_t c=0;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -130,8 +132,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		c=HAL_GetTick();
 		Module_SIM();
 		Time_Current();
+		c=HAL_GetTick()-c;
+		if(c>max) max=c;
   }
   /* USER CODE END 3 */
 }
