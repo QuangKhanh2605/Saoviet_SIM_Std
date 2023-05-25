@@ -384,8 +384,8 @@ void Module_SIM(void)
 	{
 		case RECONNECT_SIM:
 			check_module_sim_step = Reconnect_Server_Sim();
-			if(check_module_sim_step == 1) module_sim_step = CONFIG_SIM;
-			if(check_module_sim_step ==-1) module_sim_step = GETTIME_SIM;
+			if(check_module_sim_step == 1) module_sim_step = GETTIME_SIM;
+			if(check_module_sim_step ==-1) module_sim_step = CONFIG_SIM;
 			break; 
 		
 		case CONFIG_SIM:
