@@ -31,7 +31,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define RECONNECT_SIM         -1
+#define CONFIG_SIM             0
+#define GETTIME_SIM            1
+#define CHECK_CONNECT_SIM      2
+#define SEND_DATA_SERVER_SIM   3
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,11 +64,9 @@ RTC_TimeTypeDef sTime;
 RTC_DateTypeDef sDate;
 
 REAL_TIME RTC_Current={0};
-uint8_t get_RTC=0;
-uint8_t get_RTC_complete=0;
+uint8_t get_RTC=0;          //Xac nhan viec lay thoi gian tu mang di dong
 
-uint8_t check_config=0;
-uint8_t check_connect=0;
+int8_t module_sim_step=0;  //Trang thai dang lam viec Module Sim
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -80,10 +82,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void Set_RTC(REAL_TIME RTC_Current);
+void TimeCurrent_And_PackingNews(void);
 void Module_SIM(void);
-void SendData_Control_SIM(void);
-void Check_Disconnect_Error_SIM(void);
-void Time_Current_RTC(void);
+int8_t SendData_Control_Sim(void);
+int8_t Check_Connect_Error_Sim(void);
+int8_t Config_Module_Sim(void);
+int8_t Get_Real_Time_Sim(void);
+int8_t Reconnect_Server_Sim(void);
 /* USER CODE END 0 */
 
 /**
@@ -130,11 +135,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		
 		/* Lam viec voi Module Sim */
 		Module_SIM();
 
 		/*Lay thoi gian tu RTC*/
-		Time_Current_RTC();
+		TimeCurrent_And_PackingNews();
   }
   /* USER CODE END 3 */
 }
@@ -369,87 +375,144 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 void Module_SIM(void)
 {
-/*================Cau hinh Module Sim=============*/
-	if(check_config==0)
+	int8_t check_module_sim_step=0;
+	switch(module_sim_step)
 	{
-		check_config=Config_SIM(&sUart1, &sUart3); // Cau hinh Module Sim
-		if(check_config == 1)
+		case RECONNECT_SIM:
+			check_module_sim_step = Reconnect_Server_Sim();
+			if(check_module_sim_step == 1) module_sim_step = CONFIG_SIM;
+			if(check_module_sim_step ==-1) module_sim_step = GETTIME_SIM;
+			break; 
+		
+		case CONFIG_SIM:
+			check_module_sim_step = Config_Module_Sim();
+			if(check_module_sim_step == 1) module_sim_step = GETTIME_SIM;
+			break;
+		
+		case GETTIME_SIM:
+			check_module_sim_step = Get_Real_Time_Sim();
+			if(check_module_sim_step == 1) module_sim_step++;
+			if(check_module_sim_step ==-1) module_sim_step = CONFIG_SIM;
+			break;
+		
+		case CHECK_CONNECT_SIM:
+			check_module_sim_step = Check_Connect_Error_Sim();
+			if(check_module_sim_step == -1) module_sim_step = RECONNECT_SIM;
+			else module_sim_step++;
+			break;
+		
+		case SEND_DATA_SERVER_SIM:
+			check_module_sim_step = SendData_Control_Sim();
+			if(check_module_sim_step == -1) module_sim_step = CONFIG_SIM;
+			else module_sim_step++;
+			break;
+			
+		default:
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+			module_sim_step = GETTIME_SIM;
+			break;
+	}
+}
+
+/*
+	@brief  Cau hinh Module Sim
+	@return (1) Hoan thanh 
+	@return (0) Chua hoan thanh
+*/
+int8_t Config_Module_Sim(void)
+{
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+	Reset_Cipsend();
+	if(Config_SIM(&sUart1, &sUart3) == 1)
+	{
+		if(sDate.Year == 0) get_RTC=1;
+		return 1;
+	}
+	return 0;
+}
+
+/*
+	@brief  Kiem tra ket noi Module Sim
+	@return (1) Co ket noi
+	@return (-1) Mat ket noi
+*/
+int8_t Check_Connect_Error_Sim(void)
+{
+	if(Check_Disconnect_Error(&sUart1, &sUart3) == 1) //Kiem tra mat ket noi
+	{
+		Delete_Buffer(&sUart3);
+		return -1;
+	}
+	return 1;
+}
+
+/*
+	@brief  Ket noi lai Module Sim voi Server
+	@return (-1) Khong ket noi duoc sau 3 lan 
+	@return (1)  Ket noi thanh cong
+	@return (0)  Chua hoan thanh
+*/
+int8_t Reconnect_Server_Sim(void)
+{
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+	Reset_Cipsend();
+	int8_t connect_server = Connect_Server_SIM(&sUart1, &sUart3); // Ket noi lai Module Sim voi Server
+	if(connect_server == 1) return 1;
+	if(connect_server == -1)return -1;
+	return 0;
+}
+
+/*
+	@brief  Gui du lieu len Server
+	@return (-1) Gui khong thanh cong
+	@return (1)  Gui thanh cong
+	@return (0)  Chua gui xong
+*/
+int8_t SendData_Control_Sim(void)
+{
+	int8_t check_SendData_Server = SendData_Server(&sUart1, &sUart3, &RTC_Current);
+	if(check_SendData_Server == -1) return -1;
+	else if(check_SendData_Server == 1) return 1;
+	return 0;
+}
+
+
+/*
+	@brief  Lay thoi gian tu mang di dong
+	@return (-1) Khong co ket noi
+	@return (1)  Hoan thanh 
+	@return (0)  Chua hoan thanh
+*/
+int8_t Get_Real_Time_Sim(void)
+{
+	if(get_RTC == 1)
+	{
+		int8_t check_Get_Real_Time = Get_Real_Time(&sUart1, &sUart3, &RTC_Current); // Lay thoi gian tu mang di dong
+		if(check_Get_Real_Time == 1)
 		{
-			if(RTC_Current.Year == 0)
-			{
-				get_RTC=1;
-			}
-			check_connect = 1;
+			get_RTC=0;
+			Set_RTC(RTC_Current);
+			return 1;
 		}
-/*================================================*/
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+		if(check_Get_Real_Time == -1) 
+		{
+			return -1;
+		}
 	}
 	else
 	{
-		Check_Disconnect_Error_SIM();
-		SendData_Control_SIM();
-	}	
-}
-
-/*================Kiem tra mat ket noi=================*/
-void Check_Disconnect_Error_SIM(void)
-{
-	if(Check_Disconnect_Error(&sUart1, &sUart3) == 1)
-	{
-		check_connect = 0;
-		Delete_Buffer(&sUart3);
+		return 1;
 	}
-	if(check_connect == 0)
-	{
-		int8_t connect_server = Connect_Server_SIM(&sUart1, &sUart3);
-		if(connect_server == 1) check_connect =1;
-		if(connect_server == -1) check_config =0;
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
-	}	
+	return 0;
 }
-/*===================================================*/
 
-/*=======Lay thoi gian va gui du lieu len Server=====*/
-void SendData_Control_SIM(void)
-{
-	if(check_connect == 1 && check_config == 1)
-	{
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-		if(get_RTC == 1)
-		{
-			int8_t check_Get_Real_Time=0;
-			check_Get_Real_Time = Get_Real_Time(&sUart1, &sUart3, &RTC_Current); // Lay thoi gian tu mang di dong
-			if(check_Get_Real_Time == 1)
-			{
-				get_RTC = 0;
-				get_RTC_complete = 1;
-			}
-			if(check_Get_Real_Time == -1) 
-			{
-				check_config = 0;
-			}
-		}
-		else
-		{
-			int8_t check_send_data = SendData_Server(&sUart1, &sUart3, &RTC_Current); // Gui du lieu len server
-			if(check_send_data == 1) check_connect = 0;
-			if(check_send_data == -1) check_config = 0;
-		}
-		
-		if(get_RTC_complete == 1)
-		{
-			Set_RTC(RTC_Current);
-			get_RTC_complete=0;
-		}
-	}
-}
-/*==========================================================*/
-
-/*====Lay thoi gian tu RTC, kiem tra va dong goi ban tin====*/
-void Time_Current_RTC(void)
+/*
+	@brief  Lay thoi gian tu RTC, kiem tra va dong goi ban tin
+	@retval None
+*/
+void TimeCurrent_And_PackingNews(void)
 {
 	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN); // Lay thoi gian tu RTC
 	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN); // Lay ngay tu RTC
@@ -476,12 +539,14 @@ void Time_Current_RTC(void)
 	}
 	if(RTC_Current.Year != 0) 
 	{
-		Packing_News(&RTC_Current, check_config, check_connect); // Dong goi ban tin 
+		Packing_News(&RTC_Current); // Dong goi ban tin 
 	}
 }
-/*==========================================================*/
 
-/*===============Nap thoi gian vao RTC======================*/
+/*
+	@brief  Nap thoi gian vao RTC
+	@retval None
+*/
 void Set_RTC(REAL_TIME RTC_Current)
 {
 	sTime.Hours=RTC_Current.Hour;
@@ -494,9 +559,12 @@ void Set_RTC(REAL_TIME RTC_Current)
 	sDate.Date=RTC_Current.Date;
 	HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);	// Nap ngay vao RTC
 }
-/*==========================================================*/
 
-/*===================Ngat nhan Uart=========================*/
+/*
+	@brief  Ngat nhan Uart
+	@param  huart, Uart
+	@retval None
+*/
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   /* Prevent unused argument(s) compilation warning */
@@ -524,7 +592,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
            the HAL_UART_RxCpltCallback could be implemented in the user file
    */
 }
-/*===============================================================*/
 
 /* USER CODE END 4 */
 

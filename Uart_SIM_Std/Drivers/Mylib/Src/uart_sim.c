@@ -548,7 +548,7 @@ int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 }
 
 /*
-	@brief  Toan bo cau hinh Module SIM
+	@brief  Toan bo cau hinh Module SIM.
 	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
 	@return (1) Hoan thanh
 	@return (0) Chua hoan thanh

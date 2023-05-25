@@ -26,7 +26,7 @@ int8_t Error_Cipsend(void);
 	@brief  Gui du lieu len server
 	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
 	@param  RTC_Current Struct luu thoi gian thuc
-	@rerurn (-1) Mat ket noi
+	@return (-1) Mat ket noi
 	@return (1) Hoan thanh
 	@return (0) Chua hoan thanh
 */
@@ -97,12 +97,13 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 					check_cipsend=0;
 					send_data=0;
 					FLASH_Write_Addr_Page_Write_Read(FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
+					return 1;
 				}
 				if(strstr(sUart3->sim_rx,"FAIL") != NULL) 
 				{
 					check_cipsend = 0;
 					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
-					return 1;
+					return -1;
 				}
 			}
 		}
@@ -111,17 +112,22 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 }
 
 /*
+	@brief  Reset trang thai dang gui du lieu
+	@retval None
+*/
+void Reset_Cipsend(void)
+{
+	check_cipsend = 0;
+}
+
+/*
 	@brief  Dong goi ban tin
 	@param  RTC_Current Struct luu thoi gian thuc
 	@param  check_config va check_connect de xac nhan co mat ket noi hay khong
 	@retval None
 */
-void Packing_News(REAL_TIME *RTC_Current, uint8_t check_config, uint8_t check_connect)
+void Packing_News(REAL_TIME *RTC_Current)
 {
-	if(check_config == 0 || check_connect ==0)
-	{
-		check_cipsend = 0;
-	}
 	if(check_cipsend == 0)
 	{
 		send_data = 0;
