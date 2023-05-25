@@ -83,15 +83,13 @@ void Set_RTC(REAL_TIME RTC_Current);
 void Module_SIM(void);
 void SendData_Control_SIM(void);
 void Check_Disconnect_Error_SIM(void);
-void Time_Current(void);
+void Time_Current_RTC(void);
 /* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
-	uint32_t max=0;
-	uint32_t c=0;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -132,11 +130,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		c=HAL_GetTick();
+		/* Lam viec voi Module Sim */
 		Module_SIM();
-		Time_Current();
-		c=HAL_GetTick()-c;
-		if(c>max) max=c;
+
+		/*Lay thoi gian tu RTC*/
+		Time_Current_RTC();
   }
   /* USER CODE END 3 */
 }
@@ -374,9 +372,10 @@ static void MX_GPIO_Init(void)
 
 void Module_SIM(void)
 {
+/*================Cau hinh Module Sim=============*/
 	if(check_config==0)
 	{
-		check_config=Config_SIM(&sUart1, &sUart3);
+		check_config=Config_SIM(&sUart1, &sUart3); // Cau hinh Module Sim
 		if(check_config == 1)
 		{
 			if(RTC_Current.Year == 0)
@@ -385,6 +384,7 @@ void Module_SIM(void)
 			}
 			check_connect = 1;
 		}
+/*================================================*/
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
 	}
 	else
@@ -394,6 +394,7 @@ void Module_SIM(void)
 	}	
 }
 
+/*================Kiem tra mat ket noi=================*/
 void Check_Disconnect_Error_SIM(void)
 {
 	if(Check_Disconnect_Error(&sUart1, &sUart3) == 1)
@@ -409,7 +410,9 @@ void Check_Disconnect_Error_SIM(void)
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
 	}	
 }
+/*===================================================*/
 
+/*=======Lay thoi gian va gui du lieu len Server=====*/
 void SendData_Control_SIM(void)
 {
 	if(check_connect == 1 && check_config == 1)
@@ -418,7 +421,7 @@ void SendData_Control_SIM(void)
 		if(get_RTC == 1)
 		{
 			int8_t check_Get_Real_Time=0;
-			check_Get_Real_Time = Get_Real_Time(&sUart1, &sUart3, &RTC_Current);
+			check_Get_Real_Time = Get_Real_Time(&sUart1, &sUart3, &RTC_Current); // Lay thoi gian tu mang di dong
 			if(check_Get_Real_Time == 1)
 			{
 				get_RTC = 0;
@@ -431,7 +434,7 @@ void SendData_Control_SIM(void)
 		}
 		else
 		{
-			int8_t check_send_data = SendData_Server(&sUart1, &sUart3, &RTC_Current);
+			int8_t check_send_data = SendData_Server(&sUart1, &sUart3, &RTC_Current); // Gui du lieu len server
 			if(check_send_data == 1) check_connect = 0;
 			if(check_send_data == -1) check_config = 0;
 		}
@@ -443,11 +446,13 @@ void SendData_Control_SIM(void)
 		}
 	}
 }
+/*==========================================================*/
 
-void Time_Current(void)
+/*====Lay thoi gian tu RTC, kiem tra va dong goi ban tin====*/
+void Time_Current_RTC(void)
 {
-	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN); // Lay thoi gian tu RTC
+	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN); // Lay ngay tu RTC
 	if(sDate.Year != 0)
 	{
 		if(sTime.Seconds!=RTC_Current.Seconds)
@@ -471,23 +476,27 @@ void Time_Current(void)
 	}
 	if(RTC_Current.Year != 0) 
 	{
-		Packing_News(&RTC_Current, check_config, check_connect);
+		Packing_News(&RTC_Current, check_config, check_connect); // Dong goi ban tin 
 	}
 }
+/*==========================================================*/
 
+/*===============Nap thoi gian vao RTC======================*/
 void Set_RTC(REAL_TIME RTC_Current)
 {
 	sTime.Hours=RTC_Current.Hour;
 	sTime.Minutes=RTC_Current.Minutes;
 	sTime.Seconds=RTC_Current.Seconds;
-	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN); // Nap thoi gian vao RTC
 	
 	sDate.Year=RTC_Current.Year;
 	sDate.Month=RTC_Current.Month;
 	sDate.Date=RTC_Current.Date;
-	HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+	HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);	// Nap ngay vao RTC
 }
+/*==========================================================*/
 
+/*===================Ngat nhan Uart=========================*/
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   /* Prevent unused argument(s) compilation warning */
@@ -515,6 +524,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
            the HAL_UART_RxCpltCallback could be implemented in the user file
    */
 }
+/*===============================================================*/
+
 /* USER CODE END 4 */
 
 /**

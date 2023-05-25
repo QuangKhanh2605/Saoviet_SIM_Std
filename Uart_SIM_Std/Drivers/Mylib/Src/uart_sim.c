@@ -1,26 +1,22 @@
 #include "uart_sim.h"
 
-uint8_t check10Times=0;
+uint8_t time_10_check=0;
+uint8_t time_3_Uart_SIM=0;
 
 uint8_t check_Transmit=0;
 uint8_t count_Transmit_TCP=0;
 uint8_t count_Transmit_SMS=0;
 uint8_t count_Transmit_Uart_SIM=0;
 uint8_t count_Transmit_CFUN=0;
-uint8_t count_Connect_Server=0;
-
-uint8_t time_10_TCP=0;
-uint8_t time_10_SMS=0;
-uint8_t time_10_Uart_SIM=0;
-uint8_t time_3_Uart_SIM=0;
-uint8_t time_10_CFUN=0;
 
 uint32_t get_systick_command=0;
 uint8_t check_timeOut=0;
 
 uint32_t check_systick_Sim = 0;
-uint8_t check_config_Sim = 0;
 
+uint8_t SimConfig_step=0;
+uint8_t SimConnect_step=0;
+uint8_t time_3_Connect_SIM=0;
 
 uint8_t check_systick_CCLK=0;
 uint32_t get_systick_CCLK=0;
@@ -32,7 +28,7 @@ int8_t Transmit_CFUN(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Config_TCP(UART_BUFFER *sUart1,UART_BUFFER *sUart3);
 int8_t Config_SMS(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
 int8_t Config_Uart_Sim(UART_BUFFER *sUart1, UART_BUFFER *sUart3);
-int8_t Check_Command_Config(UART_BUFFER *sUart1,UART_BUFFER *sUart3, char* command,char* response, uint8_t *time_10, uint32_t Time_Resend_Command);
+int8_t Check_Command_Config(UART_BUFFER *sUart1,UART_BUFFER *sUart3, char* command,char* response, uint32_t Time_Resend_Command);
 
 /*
 	@brief  Truyen chuoi tu Uart1 den Uart3 neu dung thi se hien thi qua Uart
@@ -131,32 +127,31 @@ int8_t Uart1_To_Uart3(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 */
 int8_t Config_SMS(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
+	int8_t check_Config_SMS=0;
 	switch (count_Transmit_SMS)
 	{
 		case 0:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CMGF=1", "OK", &time_10_SMS, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_SMS = Check_Command_Config(sUart1, sUart3, "AT+CMGF=1", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_SMS ==1)
 			{
-				time_10_SMS=0;
 				count_Transmit_SMS++;
 			}
-			if(time_10_SMS>10) 
+			else if(check_Config_SMS==-1)
 			{
-				time_10_SMS=0;
 				count_Transmit_SMS=0;
 				return -1;
 			}
 			break;
 	
 		default:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CNMI=1,2", "OK", &time_10_SMS, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_SMS = Check_Command_Config(sUart1, sUart3, "AT+CNMI=1,2", "OK",TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_SMS ==1)
 			{
-				time_10_SMS=0;
 				count_Transmit_SMS=0;
 				return 1;
 			}
-			if(time_10_SMS>10) 
+			else if(check_Config_SMS ==-1)
 			{
-				time_10_SMS=0;
 				count_Transmit_SMS=0;
 				return -1;
 			}
@@ -174,31 +169,30 @@ int8_t Config_SMS(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 */
 int8_t Config_TCP(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
+	int8_t check_Config_TCP = 0;
 	switch (count_Transmit_TCP)
 	{
 		case 0:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CIPTIMEOUT=30000,20000,40000,50000", "OK", &time_10_TCP, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_TCP = Check_Command_Config(sUart1, sUart3, "AT+CIPTIMEOUT=30000,20000,40000,50000", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_TCP ==1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP++;
 			}
-			if(time_10_TCP>10) 
+			else if(check_Config_TCP ==-1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP=0;
 				return -1;
 			}
 			break;
 	
 		case 1:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CIPMODE=0", "OK", &time_10_TCP, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_TCP = Check_Command_Config(sUart1, sUart3, "AT+CIPMODE=0", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_TCP==1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP++;
 			}
-			if(time_10_TCP>10) 
+			else if(check_Config_TCP ==-1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP=0;
 				return -1;
 			}
@@ -206,57 +200,53 @@ int8_t Config_TCP(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	
 	
 		case 2:
-			if(Check_Command_Config(sUart1, sUart3, "AT+NETOPEN", "SUCCESS", &time_10_TCP, TIME_RESEND_COMMAND_CONNECT_SIM) ==1)
+			check_Config_TCP = Check_Command_Config(sUart1, sUart3, "AT+NETOPEN", "SUCCESS", TIME_RESEND_COMMAND_CONNECT_SIM);
+			if(check_Config_TCP ==1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP++;
 			}
-			if(time_10_TCP>10) 
+			if(check_Config_TCP ==-1) 
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP=0;
 				return -1;
 			}
 			break;
 	
 		case 3:
-			if(Check_Command_Config(sUart1, sUart3, "AT+IPADDR", "SUCCESS", &time_10_TCP, TIME_RESEND_COMMAND_CONNECT_SIM) ==1)
+			check_Config_TCP = Check_Command_Config(sUart1, sUart3, "AT+IPADDR", "SUCCESS", TIME_RESEND_COMMAND_CONNECT_SIM);
+			if(check_Config_TCP ==1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP++;
 			}
-			if(time_10_TCP>10) 
+			if(check_Config_TCP ==-1) 
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP=0;
 				return -1;
 			}
 			break;
 	
 		case 4:
-			if(Check_Command_Config(sUart1, sUart3 , "AT+CIPRXGET=0,1", "OK", &time_10_TCP, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_TCP = Check_Command_Config(sUart1, sUart3 , "AT+CIPRXGET=0,1", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_TCP ==1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP++;
 			}
-			if(time_10_TCP>10) 
+			if(check_Config_TCP ==-1) 
 			{
-				time_10_TCP=0;
-				count_Transmit_TCP=0;
+				count_Transmit_TCP = 0;
 				return -1;
 			}
 			break;
 
 		default:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CIPOPEN=1,\"TCP\",\"113.190.240.47\",7577,0", "SUCCESS", &time_10_TCP, TIME_RESEND_COMMAND_CONNECT_SIM) ==1)
+			check_Config_TCP = Check_Command_Config(sUart1, sUart3, "AT+CIPOPEN=1,\"TCP\",\"113.190.240.47\",7577,0", "SUCCESS", TIME_RESEND_COMMAND_CONNECT_SIM);
+			if(check_Config_TCP ==1)
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP=0;
 				return 1;
 			}
-			if(time_10_TCP>10) 
+			if(check_Config_TCP ==-1) 
 			{
-				time_10_TCP=0;
 				count_Transmit_TCP=0;
 				return -1;
 			}
@@ -274,32 +264,31 @@ int8_t Config_TCP(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 */
 int8_t Transmit_CFUN(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
+	int8_t check_Transmit_CFUN=0;
 	switch (count_Transmit_CFUN)
 	{
 		case 0:
-			if(Check_Command_Config(sUart1 ,sUart3, "AT+CFUN=4", "OK", &time_10_CFUN, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Transmit_CFUN = Check_Command_Config(sUart1 ,sUart3, "AT+CFUN=4", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Transmit_CFUN ==1)
 			{
-				time_10_CFUN=0;
 				count_Transmit_CFUN++;
 			}
-			if(time_10_CFUN>10) 
+			if(check_Transmit_CFUN ==-1) 
 			{
-				time_10_CFUN=0;
 				count_Transmit_CFUN=0;
 				return -1;
 			}
 			break;
 	
 		default:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CFUN=1", "OK", &time_10_CFUN, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Transmit_CFUN = Check_Command_Config(sUart1, sUart3, "AT+CFUN=1", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Transmit_CFUN ==1)
 			{
-				time_10_CFUN=0;
 				count_Transmit_CFUN=0;
 				return 1;
 			}
-			if(time_10_CFUN>10) 
+			if(check_Transmit_CFUN ==-1) 
 			{
-				time_10_CFUN=0;
 				count_Transmit_CFUN=0;
 				return -1;
 			}
@@ -317,119 +306,112 @@ int8_t Transmit_CFUN(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 */
 int8_t Config_Uart_Sim(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 {
+	int8_t check_Config_Uart_Sim=0;
 	switch (count_Transmit_Uart_SIM)
 	{
 		case 0:
-			if(Check_Command_Config(sUart1, sUart3, "AT", "OK", &time_10_Uart_SIM, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM++;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
-				time_10_Uart_SIM=0;
 				return -1;
 			}
 			break;
 	
 		case 1:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CIPCLOSE=1", "OK", &time_10_Uart_SIM, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CIPCLOSE=1", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM++;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				count_Transmit_Uart_SIM=7;
-				time_10_Uart_SIM=0;
 			}
 			break;
 	
 		case 2:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CPIN?", "OK", &time_10_Uart_SIM, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CPIN?", "OK",TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM++;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				count_Transmit_Uart_SIM=7;
-				time_10_Uart_SIM=0;
 			}
 			break;
 	
 		case 3:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CICCID", "OK", &time_10_Uart_SIM, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CICCID", "OK", TIME_RESEND_COMMAND_MODULE_SIM) ;
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM++;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				count_Transmit_Uart_SIM=7;
-				time_10_Uart_SIM=0;
 			}
 			break;
 	
 		case 4:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CSQ", "OK", &time_10_Uart_SIM, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CSQ", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM++;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				count_Transmit_Uart_SIM=7;
-				time_10_Uart_SIM=0;
 			}
 			break;
 	
 		case 5:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CGREG?", "OK", &time_10_Uart_SIM, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CGREG?", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM++;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				count_Transmit_Uart_SIM=7;
-				time_10_Uart_SIM=0;
 			}
 			break;
 	
 		case 6:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CGATT?", "CGATT: 1", &time_10_Uart_SIM, TIME_RESEND_COMMAND_CONNECT_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CGATT?", "CGATT: 1", TIME_RESEND_COMMAND_CONNECT_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				time_3_Uart_SIM=0;
 				count_Transmit_Uart_SIM=0;
 				return 1;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				count_Transmit_Uart_SIM=7;
-				time_10_Uart_SIM=0;
 			}
 			break;
 	
 		case 7:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CFUN=4", "OK", &time_10_Uart_SIM, TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CFUN=4", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM++;
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				time_3_Uart_SIM=0;
-				time_10_Uart_SIM=0;
 				return -1;
 			}
 			break;
 	
 		default:
-			if(Check_Command_Config(sUart1, sUart3, "AT+CFUN=1", "OK", &time_10_Uart_SIM,TIME_RESEND_COMMAND_MODULE_SIM) ==1)
+			check_Config_Uart_Sim = Check_Command_Config(sUart1, sUart3, "AT+CFUN=1", "OK", TIME_RESEND_COMMAND_MODULE_SIM);
+			if(check_Config_Uart_Sim ==1)
 			{
-				time_10_Uart_SIM=0;
 				count_Transmit_Uart_SIM=1;
 				time_3_Uart_SIM++;
 				if(time_3_Uart_SIM >= 3) 
@@ -439,10 +421,9 @@ int8_t Config_Uart_Sim(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 					return -1;
 				}
 			}
-			if(time_10_Uart_SIM>10) 
+			if(check_Config_Uart_Sim ==-1) 
 			{
 				time_3_Uart_SIM=0;
-				time_10_Uart_SIM=0;
 				return -1;
 			}
 			break;
@@ -462,12 +443,12 @@ int8_t Config_Uart_Sim(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
 	@param  command lenh gui toi Module Sim
 	@param  response phan hoi tu Module Sim
-	@param  time_10 neu gui 10 lan khong thanh cong thi tra ve loi
 	@param  Time_Resend_Command thoi gian gui lai lenh command neu khong thanh cong
 	@return (1) Hoan thanh
 	@return (0) Chua hoan thanh
+	@return (-1) Loi. Gui 10 lan khong thanh cong
 */
-int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* command,char* response, uint8_t *time_10, uint32_t Time_Resend_Command)
+int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* command, char* response, uint32_t Time_Resend_Command)
 {
 	if(check_Transmit==0 )
 	{
@@ -485,7 +466,7 @@ int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* comm
 			Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx );
 			if(strstr(sUart3->sim_rx,response) != NULL) 
 			{
-				*time_10=0;
+				time_10_check=0;
 				Delete_Buffer(sUart3);
 				check_timeOut=1;
 				return 1;
@@ -502,7 +483,7 @@ int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* comm
 	{
 		if(HAL_GetTick() - get_systick_command > TIME_RESEND_COMMAND_IF_NOT_RECEIVE)
 		{
-			(*time_10)++;
+			time_10_check++;
 			check_Transmit=0;
 			check_timeOut=0;
 		}
@@ -512,65 +493,15 @@ int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* comm
 	{
 		if(HAL_GetTick() - get_systick_command > Time_Resend_Command)
 		{
-			(*time_10)++;
+			time_10_check++;
 			check_Transmit=0;
 			check_timeOut=0;
 		}
 	}
-	return 0;
-}
-
-/*
-	@brief  Toan bo cau hinh Module SIM
-	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
-	@return (1) Hoan thanh
-	@return (0) Chua hoan thanh
-*/
-int8_t Config_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
-{
-	if(check_config_Sim==0) 
+	if(time_10_check == 10)
 	{
-		check_systick_Sim=HAL_GetTick();
-		check_config_Sim++;
-		Transmit_Data_Uart(*sUart1->huart, "Setup Module Sim");
-	}
-	if(check_config_Sim==1 ) 
-	{
-		if(Setup_SIM(sUart1,sUart3)==1) check_config_Sim++;
-	}
-	
-	if(check_config_Sim==2)
-	{
-		int8_t config_uart_sim = Config_Uart_Sim(sUart1,sUart3);
-		if(config_uart_sim ==1) check_config_Sim++;
-		if(config_uart_sim ==-1) 
-		{
-			check_config_Sim=0;
-		}
-	}
-
-	if(check_config_Sim==3) 
-	{
-		int8_t config_sms = Config_SMS(sUart1, sUart3);
-		if(config_sms==1) check_config_Sim++;
-		if(config_sms==-1) 
-		{
-			check_config_Sim=0;
-		}
-	}
-	
-	if(check_config_Sim==4) 
-	{
-		int8_t config_tcp=Config_TCP(sUart1, sUart3);
-		if(config_tcp==1) 
-		{
-			check_config_Sim=0;
-			return 1;
-		}
-		if(config_tcp==-1) 
-		{
-			check_config_Sim=0;
-		}
+		time_10_check = 0;
+		return -1;
 	}
 	return 0;
 }
@@ -614,6 +545,114 @@ int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 		Delete_Buffer(sUart3);	
 		return 1;
 	}
+}
+
+/*
+	@brief  Toan bo cau hinh Module SIM
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
+int8_t Config_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
+{
+	int8_t check_Config_SIM=0;
+	switch(SimConfig_step)
+	{
+		case 0:
+			SimConfig_step++;
+			check_systick_Sim=HAL_GetTick();
+			Transmit_Data_Uart(*sUart1->huart, "Setup Module Sim");
+			break;
+
+		case 1:
+			check_Config_SIM = Setup_SIM(sUart1,sUart3);
+			if(check_Config_SIM==1) SimConfig_step++;
+			break;
+		
+		case 2:
+			check_Config_SIM = Config_Uart_Sim(sUart1,sUart3);
+			if(check_Config_SIM == 1)      SimConfig_step++;
+			else if(check_Config_SIM ==-1) SimConfig_step=0;
+			break;
+
+		case 3:
+			check_Config_SIM = Config_SMS(sUart1, sUart3);
+			if(check_Config_SIM == 1)      SimConfig_step++;
+			else if(check_Config_SIM ==-1) SimConfig_step=0;
+			break;
+		
+		default :
+			check_Config_SIM = Config_TCP(sUart1, sUart3);
+			if(check_Config_SIM==1) 
+			{
+				SimConfig_step=0;
+				return 1;
+			}
+			else if(check_Config_SIM==-1) 
+			{
+				SimConfig_step=0;
+			}
+			break;
+	}
+	return 0;
+}
+
+/*
+	@brief  Ket noi Module Sim voi Server
+	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
+	@return (-1) Loi
+	@return (1) Hoan thanh
+	@return (0) Chua hoan thanh
+*/
+int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
+{
+	int8_t check_Connect_Server_SIM=0;
+	switch(SimConnect_step)
+	{
+		case 0:
+			time_3_Connect_SIM++;
+			SimConnect_step++;
+			break;
+		
+		case 1:
+			check_Connect_Server_SIM = Transmit_CFUN(sUart1,sUart3);
+			if(check_Connect_Server_SIM ==1)       SimConnect_step++;
+			else if(check_Connect_Server_SIM ==-1) SimConnect_step=0;
+			break;
+		
+		case 2:
+			check_Connect_Server_SIM = Config_Uart_Sim(sUart1,sUart3);
+			if(check_Connect_Server_SIM ==1)       SimConnect_step++;
+			else if(check_Connect_Server_SIM ==-1) SimConnect_step=0;
+			break;
+
+		case 3:
+			check_Connect_Server_SIM = Config_SMS(sUart1, sUart3);
+			if(check_Connect_Server_SIM ==1)       SimConnect_step++;
+			else if(check_Connect_Server_SIM ==-1) SimConnect_step=0;
+			break;
+		
+		default:
+			check_Connect_Server_SIM = Config_TCP(sUart1, sUart3);
+			if(check_Connect_Server_SIM==1) 
+			{
+				SimConnect_step=0;
+				time_3_Connect_SIM=0;
+				return 1;
+			}
+			else if(check_Connect_Server_SIM==-1) 
+			{
+				SimConnect_step=0;
+			}
+			break;
+	}
+	if(time_3_Connect_SIM > 3)
+	{
+		SimConnect_step=0;
+		time_3_Connect_SIM=0;
+		return -1;
+	}
+	return 0;
 }
 
 /*
@@ -670,74 +709,6 @@ int8_t Get_Real_Time(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Cu
 				}
 			}
 		}
-	}
-	return 0;
-}
-
-/*
-	@brief  Ket noi Module Sim voi Server
-	@param  sUart1 va sUart3: struct cua Uart1 va Uart3
-	@return (-1) Loi
-	@return (1) Hoan thanh
-	@return (0) Chua hoan thanh
-*/
-int8_t Connect_Server_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
-{
-	if(check_config_Sim==0) 
-	{
-		check_systick_Sim=HAL_GetTick();
-		count_Connect_Server++;
-		check_config_Sim++;
-	}
-	if(check_config_Sim==1 ) 
-	{
-		int8_t transmit_cfun = Transmit_CFUN(sUart1,sUart3);
-		if(transmit_cfun ==1) check_config_Sim++;
-		if(transmit_cfun ==-1) 
-		{
-			check_config_Sim=0;
-		}
-	}
-	
-	if(check_config_Sim==2)
-	{
-		int8_t config_uart_sim = Config_Uart_Sim(sUart1,sUart3);
-		if(config_uart_sim ==1) check_config_Sim++;
-		if(config_uart_sim ==-1) 
-		{
-			check_config_Sim=0;
-		}
-	}
-
-	if(check_config_Sim==3) 
-	{
-		int8_t config_sms = Config_SMS(sUart1, sUart3);
-		if(config_sms==1) check_config_Sim++;
-		if(config_sms==-1) 
-		{
-			check_config_Sim=0;
-		}
-	}
-	
-	if(check_config_Sim==4) 
-	{
-		int8_t config_tcp=Config_TCP(sUart1, sUart3);
-		if(config_tcp==1) 
-		{
-			check_config_Sim=0;
-			count_Connect_Server=0;
-			return 1;
-		}
-		if(config_tcp==-1) 
-		{
-			check_config_Sim=0;
-		}
-	}
-	if(count_Connect_Server >= 3 - 1)
-	{
-		check_config_Sim=0;
-		count_Connect_Server=0;
-		return -1;
 	}
 	return 0;
 }

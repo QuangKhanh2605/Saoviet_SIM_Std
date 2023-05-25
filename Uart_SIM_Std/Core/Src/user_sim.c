@@ -1,16 +1,15 @@
 #include "user_sim.h"
 
+char AT_CIPSEND[]="AT+CIPSEND=1,32";
+char Sim_Control[4]= "CTL+";
 char News_Write[LENGTH_BYTE_OF_THE_NEWS_FLASH];
 char News_Read[LENGTH_BYTE_OF_THE_NEWS_FLASH];
-char AT_CIPSEND[]="AT+CIPSEND=1,32";
 
 uint32_t count_news=0;
 uint32_t getTick_error_cipsend=0;
 uint8_t check_cipsend=0;
 uint8_t send_data=0;
 uint8_t check_packing_news=0;
-
-char Sim_Control[4]= "CTL+";
 
 uint32_t flash_addr_write = FLASH_ADDR_PAGE_NEWS_START;
 uint32_t flash_addr_read  = FLASH_ADDR_PAGE_NEWS_START;
