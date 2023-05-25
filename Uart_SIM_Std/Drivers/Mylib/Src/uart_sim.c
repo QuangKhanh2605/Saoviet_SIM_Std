@@ -521,9 +521,9 @@ int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 	}
 	if(check_systick_Setup_Sim ==1)
 	{
-		if(HAL_GetTick() - check_systick_Setup_Sim<=TIME_ON_SIM)
+		if(HAL_GetTick() - get_systick_Setup_Sim<=TIME_ON_SIM)
 		{
-			run_Time=(HAL_GetTick() - check_systick_Setup_Sim )/1000;
+			run_Time=(HAL_GetTick() - get_systick_Setup_Sim )/1000;
 			if(run_Time<=2)
 			{
 				HAL_GPIO_WritePin(GPIO_PIN_ON_OFF_SIM, PIN_ON_OFF_SIM,GPIO_PIN_RESET);
