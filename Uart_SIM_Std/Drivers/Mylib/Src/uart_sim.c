@@ -497,7 +497,7 @@ int8_t Check_Command_Config(UART_BUFFER *sUart1, UART_BUFFER *sUart3, char* comm
 			check_timeOut=0;
 		}
 	}
-	if(time_10_check_command == 10)
+	if(time_10_check_command > 10)
 	{
 		time_10_check_command = 0;
 		return -1;
