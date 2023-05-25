@@ -46,8 +46,8 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 			}
 			if(flash_addr_read != flash_addr_write)
 			{
-				FLASH_ReadNews(flash_addr_read, News_Read);
 				uint8_t check_error=0;
+				FLASH_ReadNews(flash_addr_read, News_Read);
 				for(uint8_t i=0; i< LENGTH_BYTE_OF_THE_NEWS_FLASH; i++)
 				{
 					if(News_Read[i] == 0x00) 

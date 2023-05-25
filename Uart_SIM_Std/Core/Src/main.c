@@ -64,6 +64,7 @@ RTC_TimeTypeDef sTime;
 RTC_DateTypeDef sDate;
 
 REAL_TIME RTC_Current={0};
+
 uint8_t get_RTC=0;          //Xac nhan viec lay thoi gian tu mang di dong
 
 int8_t module_sim_step=0;  //Trang thai dang lam viec Module Sim
@@ -84,6 +85,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void Set_RTC(REAL_TIME RTC_Current);
 void TimeCurrent_And_PackingNews(void);
 void Module_SIM(void);
+
 int8_t SendData_Control_Sim(void);
 int8_t Check_Connect_Error_Sim(void);
 int8_t Config_Module_Sim(void);
@@ -478,7 +480,6 @@ int8_t SendData_Control_Sim(void)
 	return 0;
 }
 
-
 /*
 	@brief  Lay thoi gian tu mang di dong
 	@return (-1) Khong co ket noi
@@ -518,15 +519,15 @@ void TimeCurrent_And_PackingNews(void)
 	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN); // Lay ngay tu RTC
 	if(sDate.Year != 0)
 	{
-		if(sTime.Seconds!=RTC_Current.Seconds)
+		if(sTime.Seconds != RTC_Current.Seconds)
 		{
 			RTC_Current.Send_Data_Server=1;
 			RTC_Current.Seconds = sTime.Seconds;
 			RTC_Current.Minutes = sTime.Minutes;
-			RTC_Current.Hour = sTime.Hours;
-			RTC_Current.Date = sDate.Date;
-			RTC_Current.Month= sDate.Month;
-			RTC_Current.Year = sDate.Year;
+			RTC_Current.Hour    = sTime.Hours;
+			RTC_Current.Date    = sDate.Date;
+			RTC_Current.Month   = sDate.Month;
+			RTC_Current.Year    = sDate.Year;
 			if(RTC_Current.Seconds==0)
 			{
 				RTC_Current.Send_Data_Server=1;
@@ -571,6 +572,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   UNUSED(huart);
 	if(huart->Instance == huart3.Instance)
 	{
+		Check_CountBuffer_Complete_Uart3(&sUart3);
 		if(sUart3.countBuffer < LENGTH_BUFFER_UART)
 		{
 			sUart3.sim_rx[(sUart3.countBuffer)++]= sUart3.buffer;
@@ -581,6 +583,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	
 	if(huart->Instance == huart1.Instance)
 	{
+		Check_CountBuffer_Complete_Uart1(&sUart1);
 		if(sUart1.countBuffer < LENGTH_BUFFER_UART)
 		{
 			sUart1.sim_rx[(sUart1.countBuffer)++]= sUart1.buffer;

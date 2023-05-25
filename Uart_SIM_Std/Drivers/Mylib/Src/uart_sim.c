@@ -519,37 +519,40 @@ int8_t Setup_SIM(UART_BUFFER *sUart1, UART_BUFFER *sUart3)
 		get_systick_Setup_Sim = HAL_GetTick();
 		check_systick_Setup_Sim = 1;
 	}
-	if(HAL_GetTick() - check_systick_Setup_Sim<=TIME_ON_SIM)
+	if(check_systick_Setup_Sim ==1)
 	{
-		run_Time=(HAL_GetTick() - check_systick_Setup_Sim )/1000;
-		if(run_Time<=2)
+		if(HAL_GetTick() - check_systick_Setup_Sim<=TIME_ON_SIM)
 		{
-			HAL_GPIO_WritePin(GPIO_PIN_ON_OFF_SIM, PIN_ON_OFF_SIM,GPIO_PIN_RESET);
+			run_Time=(HAL_GetTick() - check_systick_Setup_Sim )/1000;
+			if(run_Time<=2)
+			{
+				HAL_GPIO_WritePin(GPIO_PIN_ON_OFF_SIM, PIN_ON_OFF_SIM,GPIO_PIN_RESET);
+			}
+			
+			if(run_Time>2 && run_Time<=3)
+			{
+				HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(GPIO_PIN_RESET_SIM, PIN_RESET_SIM,GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(GPIO_PIN_ON_OFF_SIM, PIN_ON_OFF_SIM,GPIO_PIN_SET);
+			}
+			
+			if(run_Time>3 && run_Time <=6)
+			{
+				HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_SET);
+			}
+			if(run_Time>6 && run_Time <=21)
+			{
+				HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_RESET);
+			}
 		}
-		
-		if(run_Time>2 && run_Time<=3)
+		else
 		{
-			HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIO_PIN_RESET_SIM, PIN_RESET_SIM,GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIO_PIN_ON_OFF_SIM, PIN_ON_OFF_SIM,GPIO_PIN_SET);
+			check_systick_Setup_Sim = 0;
+			Delete_Buffer(sUart3);	
+			return 1;
 		}
-		
-		if(run_Time>3 && run_Time <=6)
-		{
-			HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_SET);
-		}
-		if(run_Time>6 && run_Time <=21)
-		{
-			HAL_GPIO_WritePin(GPIO_PIN_PWKEY_SIM, PIN_PWKEY_SIM,GPIO_PIN_RESET);
-		}
-		return 0;
 	}
-	else
-	{
-		check_systick_Setup_Sim = 0;
-		Delete_Buffer(sUart3);	
-		return 1;
-	}
+	return 0;
 }
 
 /*
