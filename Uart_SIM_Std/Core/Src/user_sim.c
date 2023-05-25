@@ -6,9 +6,11 @@ char News_Write[LENGTH_BYTE_OF_THE_NEWS_FLASH];
 char News_Read[LENGTH_BYTE_OF_THE_NEWS_FLASH];
 
 uint32_t count_news=0;
-uint32_t getTick_error_cipsend=0;
+
+uint32_t get_systick_error_cipsend=0;
 uint8_t check_cipsend=0;
 uint8_t send_data=0;
+
 uint8_t check_packing_news=0;
 
 uint32_t flash_addr_write = FLASH_ADDR_PAGE_NEWS_START;
@@ -32,10 +34,9 @@ int8_t Error_Cipsend(void);
 */
 int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_Current)
 {
-	if(Error_Cipsend() == 1) return -1;
-	
 	if(send_data == 1)
 	{
+		if(Error_Cipsend() == 1) return -1;
 		if(check_cipsend == 0) 
 		{
 			if(RTC_Current->Send_Data_Server == 1)
@@ -60,7 +61,6 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 					Transmit_Data_Uart(*sUart3->huart,AT_CIPSEND);
 					Transmit_Data_Uart(*sUart1->huart,AT_CIPSEND);
 					check_cipsend=1;
-					getTick_error_cipsend = HAL_GetTick();
 				}
 				else
 				{
@@ -79,7 +79,6 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 					//Transmit_Data_Uart(*sUart3->huart, News_Read);
 					Transmit_Data_Uart(*sUart1->huart, News_Read);
 					check_cipsend = 2;
-					getTick_error_cipsend = HAL_GetTick();
 				}
 				if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
 			}
@@ -94,15 +93,15 @@ int8_t SendData_Server(UART_BUFFER *sUart1, UART_BUFFER *sUart3, REAL_TIME *RTC_
 					Transmit_Data_Uart(*sUart1->huart, sUart3->sim_rx);
 					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
 					Control_Read_News_Flash();
+					FLASH_Write_Addr_Page_Write_Read(FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
 					check_cipsend=0;
 					send_data=0;
-					FLASH_Write_Addr_Page_Write_Read(FLASH_ADDR_PAGE_253, flash_addr_read, flash_addr_write);
 					return 1;
 				}
 				if(strstr(sUart3->sim_rx,"FAIL") != NULL) 
 				{
-					check_cipsend = 0;
 					if(Check_Receive_sendData_Control(sUart1,sUart3)==1) Delete_Buffer(sUart3);
+					check_cipsend = 0;
 					return -1;
 				}
 			}
@@ -243,9 +242,14 @@ void Control_Read_News_Flash(void)
 */
 int8_t Error_Cipsend(void)
 {
+	if(check_cipsend == 0)
+	{
+		get_systick_error_cipsend = HAL_GetTick();
+	}
+	
 	if(check_cipsend == 1)
 	{
-		if(HAL_GetTick() - getTick_error_cipsend > TIME_ERROR_CIPSEND) 
+		if(HAL_GetTick() - get_systick_error_cipsend > TIME_ERROR_CIPSEND) 
 		{
 			check_cipsend = 0;
 			return 1;
@@ -254,7 +258,7 @@ int8_t Error_Cipsend(void)
 	
 	if(check_cipsend == 2)
 	{
-		if(HAL_GetTick() - getTick_error_cipsend > TIME_ERROR_CIPSEND) 
+		if(HAL_GetTick() - get_systick_error_cipsend > TIME_ERROR_CIPSEND*2) 
 		{
 			check_cipsend = 0;
 			return 1;

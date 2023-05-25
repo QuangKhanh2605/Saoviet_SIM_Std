@@ -440,7 +440,7 @@ int8_t Config_Module_Sim(void)
 */
 int8_t Check_Connect_Error_Sim(void)
 {
-	if(Check_Disconnect_Error(&sUart1, &sUart3) == 1) //Kiem tra mat ket noi
+	if(Check_Disconnect_Error(&sUart1, &sUart3) == 1) // Kiem tra mat ket noi
 	{
 		Delete_Buffer(&sUart3);
 		return -1;
